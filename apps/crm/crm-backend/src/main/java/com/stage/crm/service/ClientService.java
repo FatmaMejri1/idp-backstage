@@ -36,4 +36,19 @@ public class ClientService {
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
     }
+    
+    public Client updateClient(Long id, Client updatedClient) {
+
+         return clientRepository.findById(id)
+            .map(client -> {
+
+                client.setName(updatedClient.getName());
+                client.setPhone(updatedClient.getPhone());
+                client.setCompany(updatedClient.getCompany());
+
+                return clientRepository.save(client);
+
+            })
+            .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
+}
 }
