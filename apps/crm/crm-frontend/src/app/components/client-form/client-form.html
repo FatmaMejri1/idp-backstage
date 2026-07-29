@@ -1,0 +1,32 @@
+<div class="form-container">
+  <h2>{{ isEditMode ? 'Modifier le client' : 'Nouveau client' }}</h2>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+
+    <div class="form-group">
+      <label for="name">Nom</label>
+      <input id="name" type="text" formControlName="name" />
+      <span class="error" *ngIf="clientForm.get('name')?.invalid && clientForm.get('name')?.touched">
+        Le nom est requis (min. 2 caractères).
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Téléphone</label>
+      <input id="phone" type="text" formControlName="phone" />
+      <span class="error" *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
+        Le téléphone est requis.
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="company">Entreprise</label>
+      <input id="company" type="text" formControlName="company" />
+      <span class="error" *ngIf="clientForm.get('company')?.invalid && clientForm.get('company')?.touched">
+        L'entreprise est requise.
+      </span>
+    </div>
+
+    <button type="submit" [disabled]="clientForm.invalid">Enregistrer</button>
+  </form>
+</div>
