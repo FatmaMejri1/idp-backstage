@@ -1,0 +1,35 @@
+<div class="opportunite-list-container">
+  <div class="header-row">
+    <h2>Liste des opportunités</h2>
+    <a routerLink="/opportunites/new" class="btn-new">+ Nouvelle opportunité</a>
+  </div>
+
+  <p *ngIf="loading">Chargement en cours...</p>
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+  <table *ngIf="!loading && opportunites.length > 0">
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Montant</th>
+        <th>Statut</th>
+        <th>Client</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let opp of opportunites">
+        <td>{{ opp.titre }}</td>
+        <td>{{ opp.montant }} DT</td>
+        <td>{{ opp.statut }}</td>
+        <td>{{ opp.client && ('name' in opp.client) ? opp.client.name : '' }}</td>
+        <td>
+          <a [routerLink]="['/opportunites', opp.id, 'edit']">Modifier</a>
+          <button (click)="deleteOpportunite(opp.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && opportunites.length === 0">Aucune opportunité trouvée.</p>
+</div>

@@ -1,0 +1,43 @@
+<div class="form-container">
+  <h2>{{ isEditMode ? 'Modifier l\'opportunité' : 'Nouvelle opportunité' }}</h2>
+
+  <form [formGroup]="opportuniteForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="titre">Titre</label>
+      <input id="titre" type="text" formControlName="titre" />
+      <span class="error" *ngIf="opportuniteForm.get('titre')?.invalid && opportuniteForm.get('titre')?.touched">
+        Le titre est requis.
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="montant">Montant</label>
+      <input id="montant" type="number" formControlName="montant" />
+      <span class="error" *ngIf="opportuniteForm.get('montant')?.invalid && opportuniteForm.get('montant')?.touched">
+        Un montant valide est requis.
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="statut">Statut</label>
+      <select id="statut" formControlName="statut">
+        <option *ngFor="let s of statuts" [ngValue]="s">{{ s }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="clientId">Client associé</label>
+      <select id="clientId" formControlName="clientId">
+        <option [ngValue]="null" disabled>-- Choisir un client --</option>
+        <option *ngFor="let client of clients" [ngValue]="client.id">
+          {{ client.name }} ({{ client.company }})
+        </option>
+      </select>
+      <span class="error" *ngIf="opportuniteForm.get('clientId')?.invalid && opportuniteForm.get('clientId')?.touched">
+        Un client doit être sélectionné.
+      </span>
+    </div>
+
+    <button type="submit" [disabled]="opportuniteForm.invalid">Enregistrer</button>
+  </form>
+</div>
