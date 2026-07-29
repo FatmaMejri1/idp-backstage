@@ -1,5 +1,8 @@
 <div class="client-list-container">
-  <h2>Liste des clients</h2>
+  <div class="header-row">
+    <h2>Liste des clients</h2>
+    <a routerLink="/clients/new" class="btn-new">+ Nouveau client</a>
+  </div>
 
   <p *ngIf="loading">Chargement en cours...</p>
   <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
@@ -19,6 +22,7 @@
         <td>{{ client.phone }}</td>
         <td>{{ client.company }}</td>
         <td>
+          <a [routerLink]="['/clients', client.id, 'edit']">Modifier</a>
           <button (click)="deleteClient(client.id)">Supprimer</button>
         </td>
       </tr>
