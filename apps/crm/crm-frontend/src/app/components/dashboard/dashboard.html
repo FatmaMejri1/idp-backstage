@@ -1,0 +1,33 @@
+<div class="dashboard-container">
+  <h2>Tableau de bord</h2>
+
+  <p *ngIf="loading">Chargement en cours...</p>
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+  <div class="cards" *ngIf="!loading">
+    <div class="card">
+      <span class="card-value">{{ totalClients }}</span>
+      <span class="card-label">Clients</span>
+    </div>
+    <div class="card">
+      <span class="card-value">{{ totalContacts }}</span>
+      <span class="card-label">Contacts</span>
+    </div>
+    <div class="card">
+      <span class="card-value">{{ totalOpportunites }}</span>
+      <span class="card-label">Opportunités</span>
+    </div>
+    <div class="card highlight">
+      <span class="card-value">{{ montantTotal }} DT</span>
+      <span class="card-label">Montant total des opportunités</span>
+    </div>
+    <div class="card success">
+      <span class="card-value">{{ opportunitesGagnees }}</span>
+      <span class="card-label">Opportunités gagnées</span>
+    </div>
+    <div class="card">
+      <span class="card-value">{{ opportunitesEnCours }}</span>
+      <span class="card-label">Opportunités en cours</span>
+    </div>
+  </div>
+</div>
