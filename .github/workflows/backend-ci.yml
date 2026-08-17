@@ -17,6 +17,21 @@ jobs:
       contents: read
       packages: write
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: crmdb
+          POSTGRES_USER: crmuser
+          POSTGRES_PASSWORD: crmpassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,6 +46,10 @@ jobs:
       - name: Run tests
         working-directory: apps/crm/crm-backend
         run: mvn test -B
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/crmdb
+          SPRING_DATASOURCE_USERNAME: crmuser
+          SPRING_DATASOURCE_PASSWORD: crmpassword
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
