@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Opportunite } from '../models/opportunite.model';
 
@@ -7,7 +8,7 @@ import { Opportunite } from '../models/opportunite.model';
   providedIn: 'root'
 })
 export class OpportuniteService {
-  private apiUrl = 'http://localhost:8081/api/opportunites';
+  private apiUrl = `${environment.apiUrl}/opportunites`;
 
   constructor(private http: HttpClient) {}
 

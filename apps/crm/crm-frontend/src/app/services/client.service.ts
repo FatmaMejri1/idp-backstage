@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 import { Client } from '../models/client.model';
 
@@ -7,7 +8,7 @@ import { Client } from '../models/client.model';
   providedIn: 'root'
 })
 export class ClientService {
-  private apiUrl = 'http://localhost:8081/api/clients';
+  private apiUrl = `${environment.apiUrl}/clients`;
 
   constructor(private http: HttpClient) {}
 

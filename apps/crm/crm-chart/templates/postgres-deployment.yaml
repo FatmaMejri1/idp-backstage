@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crm-postgres
+  labels:
+    {{- include "crm.labels" . | nindent 4 }}
+    app: crm-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crm-postgres
+  template:
+    metadata:
+      labels:
+        {{- include "crm.labels" . | nindent 8 }}
+        app: crm-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: {{ .Values.postgres.image }}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.db | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgres.password | quote }}
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: crm-postgres-pvc
