@@ -32,9 +32,9 @@ jobs:
         working-directory: apps/crm/crm-frontend
         run: npm ci
 
-      - name: Run tests (headless Chrome)
+      - name: Run tests
         working-directory: apps/crm/crm-frontend
-        run: npx ng test --watch=false --browsers=ChromeHeadless
+        run: npx ng test --watch=false
 
       - name: Log in to GHCR
         uses: docker/login-action@v3

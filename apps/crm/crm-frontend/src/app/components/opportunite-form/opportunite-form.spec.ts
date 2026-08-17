@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { OpportuniteForm } from './opportunite-form';
 
@@ -9,6 +10,7 @@ describe('OpportuniteForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [OpportuniteForm],
+      providers: [provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OpportuniteForm);

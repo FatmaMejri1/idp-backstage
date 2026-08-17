@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { ContactForm } from './contact-form';
 
@@ -9,6 +10,7 @@ describe('ContactForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ContactForm],
+      providers: [provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContactForm);
