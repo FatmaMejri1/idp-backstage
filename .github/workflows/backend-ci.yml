@@ -1,0 +1,49 @@
+name: CRM Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/crm/crm-backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+env:
+  IMAGE_NAME: ghcr.io/fatmamejri1/crm-backend
+
+jobs:
+  build-test-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests
+        working-directory: apps/crm/crm-backend
+        run: mvn test -B
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/crm/crm-backend
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
