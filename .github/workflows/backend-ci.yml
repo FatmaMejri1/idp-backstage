@@ -80,7 +80,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Trivy container scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: table
