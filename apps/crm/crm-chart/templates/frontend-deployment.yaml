@@ -16,9 +16,11 @@ spec:
         {{- include "crm.labels" . | nindent 8 }}
         app: crm-frontend
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: frontend
           image: {{ .Values.frontend.image }}
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.frontend.port }}
