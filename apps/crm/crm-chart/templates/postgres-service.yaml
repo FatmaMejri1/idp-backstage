@@ -4,10 +4,15 @@ metadata:
   name: crm-postgres
   labels:
     {{- include "crm.labels" . | nindent 4 }}
+    app: crm-postgres
 spec:
   type: ClusterIP
   selector:
     app: crm-postgres
   ports:
-    - port: 5432
+    - name: postgres
+      port: 5432
       targetPort: 5432
+    - name: metrics
+      port: 9187
+      targetPort: 9187

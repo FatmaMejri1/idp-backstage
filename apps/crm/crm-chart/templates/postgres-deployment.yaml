@@ -32,6 +32,18 @@ spec:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
               subPath: postgres
+        - name: postgres-exporter
+          image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+          ports:
+            - name: metrics
+              containerPort: 9187
+          env:
+            - name: DATA_SOURCE_URI
+              value: "localhost:5432/{{ .Values.postgres.db }}?sslmode=disable"
+            - name: DATA_SOURCE_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: DATA_SOURCE_PASS
+              value: {{ .Values.postgres.password | quote }}
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:

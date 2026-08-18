@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crm-postgres-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  crm-postgres-dashboard.json: |
+{{ .Files.Get "dashboards/crm-postgres-dashboard.json" | indent 4 }}

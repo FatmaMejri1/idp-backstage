@@ -4,10 +4,12 @@ metadata:
   name: crm-backend
   labels:
     {{- include "crm.labels" . | nindent 4 }}
+    app: crm-backend
 spec:
   type: ClusterIP
   selector:
     app: crm-backend
   ports:
-    - port: {{ .Values.backend.port }}
+    - name: http
+      port: {{ .Values.backend.port }}
       targetPort: {{ .Values.backend.port }}

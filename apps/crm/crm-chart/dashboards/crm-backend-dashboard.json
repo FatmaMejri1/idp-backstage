@@ -1,0 +1,67 @@
+{
+  "title": "CRM Backend (Spring Boot)",
+  "uid": "crm-backend-dashboard",
+  "tags": ["crm", "spring-boot"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Request Rate (per endpoint)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"crm-backend\"}[1m])) by (uri, status)", "legendFormat": "{{uri}} [{{status}}]" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP Error Rate (5xx)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"crm-backend\", status=~\"5..\"}[1m]))", "legendFormat": "5xx errors/sec" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Response Time p95 (per endpoint)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"crm-backend\"}[5m])) by (le, uri))", "legendFormat": "{{uri}}" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "JVM Heap Memory Used",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "sum(jvm_memory_used_bytes{job=\"crm-backend\", area=\"heap\"}) by (id)", "legendFormat": "{{id}}" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Active DB Connections (HikariCP)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "hikaricp_connections_active{job=\"crm-backend\"}", "legendFormat": "active" },
+        { "expr": "hikaricp_connections_idle{job=\"crm-backend\"}", "legendFormat": "idle" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Backend Uptime",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        { "expr": "process_uptime_seconds{job=\"crm-backend\"}", "legendFormat": "uptime (s)" }
+      ]
+    }
+  ]
+}

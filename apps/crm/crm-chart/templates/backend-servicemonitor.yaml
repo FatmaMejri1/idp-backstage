@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: crm-backend
+  namespace: default
+  labels:
+    {{- include "crm.labels" . | nindent 4 }}
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: crm-backend
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

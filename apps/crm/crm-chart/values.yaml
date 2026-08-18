@@ -1,5 +1,5 @@
 backend:
-  image: ghcr.io/fatmamejri1/crm-backend:latest
+  image: crm-backend:local
   port: 8081
   replicas: 1
 
