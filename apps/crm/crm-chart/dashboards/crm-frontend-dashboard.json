@@ -1,0 +1,219 @@
+{
+  "title": "CRM Frontend (Nginx)",
+  "uid": "crm-frontend-dashboard",
+  "tags": [
+    "crm",
+    "frontend",
+    "nginx"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 2,
+  "refresh": "10s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Frontend Status",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "nginx_up{job=\"crm-frontend\"}",
+          "legendFormat": "Nginx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": 0
+              },
+              {
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "HTTP Requests / sec",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "rate(nginx_http_requests_total{job=\"crm-frontend\"}[1m])",
+          "legendFormat": "requests/sec"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Connections",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 15,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "nginx_connections_active{job=\"crm-frontend\"}",
+          "legendFormat": "active"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Total HTTP Requests",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "nginx_http_requests_total{job=\"crm-frontend\"}",
+          "legendFormat": "requests"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Accepted vs Handled Connections / sec",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 18,
+        "x": 6,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "rate(nginx_connections_accepted{job=\"crm-frontend\"}[1m])",
+          "legendFormat": "accepted/sec"
+        },
+        {
+          "expr": "rate(nginx_connections_handled{job=\"crm-frontend\"}[1m])",
+          "legendFormat": "handled/sec"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Nginx Connection States",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "nginx_connections_reading{job=\"crm-frontend\"}",
+          "legendFormat": "reading"
+        },
+        {
+          "expr": "nginx_connections_writing{job=\"crm-frontend\"}",
+          "legendFormat": "writing"
+        },
+        {
+          "expr": "nginx_connections_waiting{job=\"crm-frontend\"}",
+          "legendFormat": "waiting"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Nginx Exporter Health",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 10
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"crm-frontend\"}",
+          "legendFormat": "Prometheus scrape"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

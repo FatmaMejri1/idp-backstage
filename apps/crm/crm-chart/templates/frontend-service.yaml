@@ -4,11 +4,16 @@ metadata:
   name: crm-frontend
   labels:
     {{- include "crm.labels" . | nindent 4 }}
+    app: crm-frontend
 spec:
   type: NodePort
   selector:
     app: crm-frontend
   ports:
-    - port: {{ .Values.frontend.port }}
+    - name: http
+      port: {{ .Values.frontend.port }}
       targetPort: {{ .Values.frontend.port }}
       nodePort: {{ .Values.frontend.nodePort }}
+    - name: metrics
+      port: 9113
+      targetPort: 9113
