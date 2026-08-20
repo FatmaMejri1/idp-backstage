@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: crm-slack-routing
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  route:
+    receiver: 'discord-relay'
+    groupBy: ['alertname', 'severity']
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 4h
+    routes:
+      - receiver: 'discord-relay'
+        matchers:
+          - name: severity
+            matchType: '=~'
+            value: 'critical|warning'
+        continue: false
+  receivers:
+    - name: 'discord-relay'
+      webhookConfigs:
+        - url: 'http://alertmanager-discord-relay.monitoring.svc.cluster.local:9094'
+          sendResolved: true

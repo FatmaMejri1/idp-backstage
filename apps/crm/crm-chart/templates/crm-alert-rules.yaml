@@ -1,0 +1,208 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: crm-alert-rules
+  namespace: monitoring
+  labels:
+    release: monitoring
+    app.kubernetes.io/instance: crm
+spec:
+  groups:
+
+    # ==========================================
+    # FRONTEND ALERTS
+    # ==========================================
+    - name: crm.frontend
+      rules:
+
+        - alert: CRMFrontendDown
+          expr: nginx_up{job="crm-frontend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: frontend
+          annotations:
+            summary: "CRM frontend is down"
+            description: "The CRM frontend Nginx exporter has been down for more than 1 minute."
+
+        - alert: CRMFrontendHighRequestRate
+          expr: rate(nginx_http_requests_total{job="crm-frontend"}[5m]) > 10
+          for: 5m
+          labels:
+            severity: warning
+            component: frontend
+          annotations:
+            summary: "High CRM frontend request rate"
+            description: "CRM frontend is receiving more than 10 requests/sec for 5 minutes."
+
+    # ==========================================
+    # BACKEND ALERTS
+    # ==========================================
+    - name: crm.backend
+      rules:
+
+        - alert: CRMBackendDown
+          expr: up{job="crm-backend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: backend
+          annotations:
+            summary: "CRM backend is down"
+            description: "Prometheus cannot scrape the CRM backend for more than 1 minute."
+
+        - alert: CRMBackendHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{
+                job="crm-backend",
+                status=~"5.."
+              }[5m]))
+            /
+              sum(rate(http_server_requests_seconds_count{
+                job="crm-backend"
+              }[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+            component: backend
+          annotations:
+            summary: "High CRM backend 5xx error rate"
+            description: "More than 5% of CRM backend HTTP requests are returning 5xx errors."
+
+        - alert: CRMBackendHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(
+                rate(http_server_requests_seconds_bucket{
+                  job="crm-backend"
+                }[5m])
+              ) by (le)
+            ) > 1
+          for: 5m
+          labels:
+            severity: warning
+            component: backend
+          annotations:
+            summary: "High CRM backend response latency"
+            description: "CRM backend p95 response latency is above 1 second."
+
+    # ==========================================
+    # POSTGRESQL ALERTS
+    # ==========================================
+    - name: crm.postgresql
+      rules:
+
+        - alert: CRMPostgreSQLDown
+          expr: pg_up{job="crm-postgres"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: database
+          annotations:
+            summary: "CRM PostgreSQL is down"
+            description: "PostgreSQL exporter reports that the CRM database is unavailable."
+
+        - alert: CRMPostgreSQLHighConnections
+          expr: |
+            pg_stat_database_numbackends{
+              job="crm-postgres",
+              datname="crmdb"
+            } > 80
+          for: 5m
+          labels:
+            severity: warning
+            component: database
+          annotations:
+            summary: "High PostgreSQL connections"
+            description: "CRM PostgreSQL has more than 80 active connections."
+
+        - alert: CRMPostgreSQLLowCacheHitRatio
+          expr: |
+            (
+              rate(pg_stat_database_blks_hit{
+                job="crm-postgres",
+                datname="crmdb"
+              }[5m])
+            /
+            (
+              rate(pg_stat_database_blks_hit{
+                job="crm-postgres",
+                datname="crmdb"
+              }[5m])
+              +
+              rate(pg_stat_database_blks_read{
+                job="crm-postgres",
+                datname="crmdb"
+              }[5m])
+            )
+            ) < 0.90
+          for: 10m
+          labels:
+            severity: warning
+            component: database
+          annotations:
+            summary: "Low PostgreSQL cache hit ratio"
+            description: "CRM PostgreSQL cache hit ratio has been below 90% for 10 minutes."
+
+    # ==========================================
+    # KUBERNETES ALERTS
+    # ==========================================
+    - name: crm.kubernetes
+      rules:
+
+        - alert: CRMFrontendPodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="default",
+              deployment="crm-frontend"
+            }
+            <
+            kube_deployment_spec_replicas{
+              namespace="default",
+              deployment="crm-frontend"
+            }
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+          annotations:
+            summary: "CRM frontend replicas unavailable"
+            description: "Not all expected CRM frontend replicas are available."
+
+        - alert: CRMBackendPodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="default",
+              deployment="crm-backend"
+            }
+            <
+            kube_deployment_spec_replicas{
+              namespace="default",
+              deployment="crm-backend"
+            }
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+          annotations:
+            summary: "CRM backend replicas unavailable"
+            description: "Not all expected CRM backend replicas are available."
+
+        - alert: CRMPodRestarting
+          expr: |
+            increase(
+              kube_pod_container_status_restarts_total{
+                namespace="default",
+                pod=~"crm-.*"
+              }[15m]
+            ) > 3
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+          annotations:
+            summary: "CRM pod restarting frequently"
+            description: "A CRM pod has restarted more than 3 times during the last 15 minutes."
