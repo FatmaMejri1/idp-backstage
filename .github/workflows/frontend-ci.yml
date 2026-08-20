@@ -25,7 +25,6 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
 
   sast-scan:
     name: SAST Scan (Semgrep)
@@ -36,7 +35,7 @@ jobs:
         working-directory: apps/crm/crm-frontend
         run: |
           python3 -m pip install semgrep
-          semgrep scan --config=p/security-audit --config=p/owasp-top-ten --config=p/typescript . || true
+          semgrep scan --config=p/security-audit --config=p/owasp-top-ten --config=p/typescript . --severity ERROR
 
   test:
     name: Build & Test
@@ -56,22 +55,57 @@ jobs:
         working-directory: apps/crm/crm-frontend
         run: npx ng test --watch=false
 
-  build-and-push:
-    name: Build & Push Image
+  build-scan-push:
+    name: Build, Scan & Push Image
     runs-on: ubuntu-latest
     needs: [test]
     permissions:
       contents: read
       packages: write
+      security-events: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Build image (local only, not pushed yet)
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/crm/crm-frontend
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Trivy scan (table, blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+
+      - name: Trivy scan (SARIF for GitHub Security tab)
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+
+      - name: Upload SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push image
+
+      - name: Push image (only if scan passed)
         uses: docker/build-push-action@v5
         with:
           context: apps/crm/crm-frontend
@@ -79,25 +113,3 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-  image-scan:
-    name: Image Scan (Trivy)
-    runs-on: ubuntu-latest
-    needs: [build-and-push]
-    permissions:
-      contents: read
-      packages: read
-    steps:
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Trivy
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          format: table
-          severity: CRITICAL,HIGH
-          exit-code: '0'
