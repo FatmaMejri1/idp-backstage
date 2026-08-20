@@ -1,0 +1,43 @@
+name: Deploy CRM via GitOps
+
+on:
+  workflow_dispatch:
+    inputs:
+      serviceName:
+        description: 'Name of the service to deploy (e.g. crm-backend, crm-frontend)'
+        required: true
+        default: 'crm-backend'
+      imageTag:
+        description: 'Tag of the image to deploy (e.g. latest, v1.0.1)'
+        required: true
+        default: 'latest'
+
+permissions:
+  contents: write
+
+jobs:
+  gitops-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update Helm values
+        run: |
+          # This simulates updating the image tag in the Git repository for ArgoCD to sync
+          echo "Updating image tag for ${{ github.event.inputs.serviceName }} to ${{ github.event.inputs.imageTag }}"
+          
+          # Example sed command (assuming the values.yaml has a structure like `image: tag: ...`)
+          # You would tailor this to your exact values.yaml structure. 
+          # For example:
+          # sed -i "s/tag: .*/tag: ${{ github.event.inputs.imageTag }}/" apps/crm/crm-chart/values.yaml
+          
+          # For demo purposes, we will just echo the change or you can place the actual sed command here once the values.yaml structure is finalized.
+          
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add apps/crm/crm-chart/values.yaml || true
+          git commit -m "Update ${{ github.event.inputs.serviceName }} image tag to ${{ github.event.inputs.imageTag }} [skip ci]" || echo "No changes to commit"
+          git push
