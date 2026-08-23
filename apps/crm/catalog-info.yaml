@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crm
+  title: CRM
+  description: CRM application
+  annotations:
+    backstage.io/kubernetes-label-selector: 'app.kubernetes.io/name=crm'
+    backstage.io/kubernetes-namespace: default
+spec:
+  type: service
+  lifecycle: production
+  owner: user:guest
