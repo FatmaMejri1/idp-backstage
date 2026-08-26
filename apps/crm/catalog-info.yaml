@@ -5,13 +5,13 @@ metadata:
   title: CRM
   description: CRM application
   links:
-    - url: http://localhost:30300/explore?schemaVersion=1&panes=%7B%22a%22:%7B%22datasource%22:%22efw265rn227eof%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bnamespace%3D%5C%22default%5C%22%7D%22,%22queryType%22:%22range%22%7D%5D%7D%7D
+    - url: http://localhost:3300/explore?schemaVersion=1&panes=%7B%22a%22:%7B%22datasource%22:%22efw265rn227eof%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bnamespace%3D%5C%22default%5C%22%7D%22,%22queryType%22:%22range%22%7D%5D%7D%7D
       title: Loki Log Explorer
       icon: dashboard
     - url: http://localhost:8080/applications/crm-app
       title: ArgoCD GitOps
       icon: cloud
-    - url: http://localhost:30300/dashboards
+    - url: http://localhost:3300/dashboards
       title: All Grafana Dashboards
       icon: dashboard
     - url: http://crm.local
@@ -23,7 +23,8 @@ metadata:
     github.com/project-slug: FatmaMejri1/idp-backstage
     grafana/dashboard-selector: 'crm'
     grafana/alert-label-selector: 'app=crm'
-    pagerduty.com/integration-key: 'R03EO22VKWIZ01EGUSPLCNY4ZJOBCBQ6'
+    # Public PagerDuty service id (not the Events routing/integration key).
+    pagerduty.com/service-id: PCIJWYX
 spec:
   type: service
   lifecycle: production
