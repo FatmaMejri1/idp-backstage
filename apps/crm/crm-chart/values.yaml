@@ -1,10 +1,16 @@
 backend:
-  image: crm-backend:local
+  image:
+    repository: ghcr.io/fatmamejri1/crm-backend
+    tag: latest
+    pullPolicy: Always
   port: 8081
   replicas: 1
 
 frontend:
-  image: ghcr.io/fatmamejri1/crm-frontend:latest
+  image:
+    repository: ghcr.io/fatmamejri1/crm-frontend
+    tag: latest
+    pullPolicy: Always
   port: 80
   replicas: 1
   nodePort: 30007
@@ -13,5 +19,6 @@ postgres:
   image: postgres:16-alpine
   db: crmdb
   user: crmuser
+  # Demo-only default. Override with --set or a Kubernetes Secret in non-demo use.
   password: crmpassword
   storage: 1Gi

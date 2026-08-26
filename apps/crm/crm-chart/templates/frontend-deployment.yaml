@@ -20,8 +20,8 @@ spec:
         - name: ghcr-secret
       containers:
         - name: frontend
-          image: {{ .Values.frontend.image }}
-          imagePullPolicy: Always
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.port }}
             - name: nginx-status

@@ -146,26 +146,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Update Helm values
+      - name: Update Helm image tag
         run: |
-          echo "Updating image tag for ${{ github.event.inputs.serviceName }} to ${{ github.event.inputs.imageTag }}"
-          # Example: update the image tag in values.yaml
-          # sed -i "s/tag: .*/tag: ${{ github.event.inputs.imageTag }}/" apps/crm/crm-chart/values.yaml
+          python3 scripts/update_helm_image_tag.py \
+            apps/crm/crm-chart/values.yaml \
+            "${{ github.event.inputs.serviceName }}" \
+            "${{ github.event.inputs.imageTag }}"
 
-      - name: Commit and push changes
+      - name: Commit and push GitOps change
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add apps/crm/crm-chart/values.yaml || true
-          git commit -m "Update ${{ github.event.inputs.serviceName }} image tag to ${{ github.event.inputs.imageTag }} [skip ci]" || echo "No changes to commit"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add apps/crm/crm-chart/values.yaml
+          if git diff --staged --quiet; then
+            echo "No Helm values change to commit"
+            exit 0
+          fi
+          git commit -m "gitops: set ${{ github.event.inputs.serviceName }} tag to ${{ github.event.inputs.imageTag }} [skip ci]"
           git push
 ```
 
 **What this does:**
 - Provides a `workflow_dispatch` trigger, meaning this pipeline can be launched **on-demand** from the GitHub Actions UI, or from Backstage.
 - The workflow accepts two parameters: `serviceName` and `imageTag`.
-- It updates `values.yaml` in the Helm chart with the new image tag and pushes the commit to Git.
+- `scripts/update_helm_image_tag.py` writes the new tag under `backend.image.tag` or `frontend.image.tag` in `values.yaml`, then pushes the commit.
 - ArgoCD detects this new commit and automatically deploys the new image to the cluster — **no manual intervention needed**.
+
+Run the contract tests for this flow:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
 
 ---
 

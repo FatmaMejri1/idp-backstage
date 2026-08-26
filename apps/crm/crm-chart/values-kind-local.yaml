@@ -1,0 +1,14 @@
+# Optional overlay when images are loaded into kind instead of pulled from GHCR:
+#   helm upgrade --install crm ./apps/crm/crm-chart -f apps/crm/crm-chart/values.yaml \
+#     -f apps/crm/crm-chart/values-kind-local.yaml
+backend:
+  image:
+    repository: crm-backend
+    tag: local
+    pullPolicy: IfNotPresent
+
+frontend:
+  image:
+    repository: crm-frontend
+    tag: local
+    pullPolicy: IfNotPresent
