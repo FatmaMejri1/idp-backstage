@@ -1,0 +1,165 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.prometheusRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Values.name }}-alerts
+  namespace: monitoring
+  labels:
+    {{- include "golden-path-service.labels" . | nindent 4 }}
+    release: monitoring
+spec:
+  groups:
+
+    - name: {{ .Values.name }}.frontend
+      rules:
+
+        - alert: {{ .Values.name }}FrontendDown
+          expr: nginx_up{job="{{ .Values.name }}-frontend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: frontend
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} frontend is down"
+            description: "{{ .Values.name }} frontend Nginx exporter has been down for more than 1 minute."
+
+        - alert: {{ .Values.name }}FrontendHighRequestRate
+          expr: rate(nginx_http_requests_total{job="{{ .Values.name }}-frontend"}[5m]) > 10
+          for: 5m
+          labels:
+            severity: warning
+            component: frontend
+            service: {{ .Values.name }}
+          annotations:
+            summary: "High {{ .Values.name }} frontend request rate"
+            description: "{{ .Values.name }} frontend is receiving more than 10 requests/sec for 5 minutes."
+
+    - name: {{ .Values.name }}.backend
+      rules:
+
+        - alert: {{ .Values.name }}BackendDown
+          expr: up{job="{{ .Values.name }}-backend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: backend
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} backend is down"
+            description: "Prometheus cannot scrape the {{ .Values.name }} backend for more than 1 minute."
+
+        - alert: {{ .Values.name }}BackendHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{
+                job="{{ .Values.name }}-backend",
+                status=~"5.."
+              }[5m]))
+            /
+              sum(rate(http_server_requests_seconds_count{
+                job="{{ .Values.name }}-backend"
+              }[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+            component: backend
+            service: {{ .Values.name }}
+          annotations:
+            summary: "High {{ .Values.name }} backend 5xx error rate"
+            description: "More than 5% of {{ .Values.name }} backend HTTP requests are returning 5xx errors."
+
+        - alert: {{ .Values.name }}BackendHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(
+                rate(http_server_requests_seconds_bucket{
+                  job="{{ .Values.name }}-backend"
+                }[5m])
+              ) by (le)
+            ) > 1
+          for: 5m
+          labels:
+            severity: warning
+            component: backend
+            service: {{ .Values.name }}
+          annotations:
+            summary: "High {{ .Values.name }} backend response latency"
+            description: "{{ .Values.name }} backend p95 response latency is above 1 second."
+
+    - name: {{ .Values.name }}.postgresql
+      rules:
+
+        - alert: {{ .Values.name }}PostgreSQLDown
+          expr: pg_up{job="{{ .Values.name }}-postgres"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: database
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} PostgreSQL is down"
+            description: "PostgreSQL exporter reports that the {{ .Values.name }} database is unavailable."
+
+    - name: {{ .Values.name }}.kubernetes
+      rules:
+
+        - alert: {{ .Values.name }}FrontendPodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="default",
+              deployment="{{ .Values.name }}-frontend"
+            }
+            <
+            kube_deployment_spec_replicas{
+              namespace="default",
+              deployment="{{ .Values.name }}-frontend"
+            }
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} frontend replicas unavailable"
+            description: "Not all expected {{ .Values.name }} frontend replicas are available."
+
+        - alert: {{ .Values.name }}BackendPodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="default",
+              deployment="{{ .Values.name }}-backend"
+            }
+            <
+            kube_deployment_spec_replicas{
+              namespace="default",
+              deployment="{{ .Values.name }}-backend"
+            }
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} backend replicas unavailable"
+            description: "Not all expected {{ .Values.name }} backend replicas are available."
+
+        - alert: {{ .Values.name }}PodRestarting
+          expr: |
+            increase(
+              kube_pod_container_status_restarts_total{
+                namespace="default",
+                pod=~"{{ .Values.name }}-.*"
+              }[15m]
+            ) > 3
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+            service: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} pod restarting frequently"
+            description: "A {{ .Values.name }} pod has restarted more than 3 times during the last 15 minutes."
+{{- end }}

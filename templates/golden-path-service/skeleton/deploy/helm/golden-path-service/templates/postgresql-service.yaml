@@ -1,0 +1,21 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-postgres
+  namespace: default
+  labels:
+    {{- include "golden-path-service.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.name }}-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+{{- end }}

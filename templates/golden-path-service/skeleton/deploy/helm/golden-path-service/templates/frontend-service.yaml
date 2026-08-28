@@ -1,0 +1,21 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-frontend
+  namespace: default
+  labels:
+    {{- include "golden-path-service.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.name }}-frontend
+  ports:
+    - name: http
+      port: {{ .Values.frontend.port }}
+      targetPort: http
+    - name: metrics
+      port: 9113
+      targetPort: metrics
+{{- end }}

@@ -1,0 +1,51 @@
+{{- if .Values.backend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-backend
+  namespace: default
+  labels:
+    {{- include "golden-path-service.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-backend
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-backend
+  template:
+    metadata:
+      labels:
+        {{- include "golden-path-service.labels" . | nindent 8 }}
+        app: {{ .Values.name }}-backend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+
+          ports:
+            - name: http
+              containerPort: {{ .Values.backend.port }}
+
+          env:
+            - name: DATABASE_URL
+              value: "jdbc:postgresql://{{ .Values.name }}-postgres:5432/{{ .Values.postgres.db }}"
+
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}-postgres
+                  key: POSTGRES_USER
+
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}-postgres
+                  key: POSTGRES_PASSWORD
+
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+{{- end }}

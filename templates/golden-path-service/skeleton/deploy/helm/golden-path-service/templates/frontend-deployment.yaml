@@ -1,0 +1,47 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-frontend
+  namespace: default
+  labels:
+    {{- include "golden-path-service.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-frontend
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-frontend
+  template:
+    metadata:
+      labels:
+        {{- include "golden-path-service.labels" . | nindent 8 }}
+        app: {{ .Values.name }}-frontend
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.port }}
+            - name: nginx-status
+              containerPort: 8080
+
+        - name: nginx-exporter
+          image: nginx/nginx-prometheus-exporter:1.3.0
+          args:
+            - "-nginx.scrape-uri=http://localhost:8080/nginx_status"
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+{{- end }}
