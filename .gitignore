@@ -34,3 +34,4 @@ backstage/packages/backend/sqlite/*.sqlite-journal
 # Backstage runtime SQLite databases
 backstage/packages/backend/sqlite/*.sqlite
 backstage/packages/backend/sqlite/*.sqlite-journal
+target/
