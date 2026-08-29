@@ -15,11 +15,14 @@ RUN mvn clean package -DskipTests -B
 # ---- Run stage ----
 FROM eclipse-temurin:17-jre-alpine
 
-RUN apk update && apk upgrade --no-cache
+RUN apk update && apk upgrade --no-cache && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build --chown=appuser:appgroup /app/target/*.jar app.jar
+
+USER appuser
 
 EXPOSE 8081
 
