@@ -9,6 +9,7 @@ import {
   createTemplateAction,
 } from '@backstage/plugin-scaffolder-node';
 import { spawnSync } from 'child_process';
+import { alertmanagerWebhookPlugin } from './plugins/alertmanagerWebhook';
 
 // ============================================================
 // Platform Engineering Custom Action: github:repo:set-secret
@@ -164,6 +165,7 @@ backend.add(import('@backstage/plugin-user-settings-backend'));
 // notifications and signals plugins
 backend.add(import('@backstage/plugin-notifications-backend'));
 backend.add(import('@backstage/plugin-signals-backend'));
+backend.add(alertmanagerWebhookPlugin);
 
 // mcp actions plugin
 backend.add(import('@backstage/plugin-mcp-actions-backend'));

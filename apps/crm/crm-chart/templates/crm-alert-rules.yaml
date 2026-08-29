@@ -19,6 +19,7 @@ spec:
           expr: nginx_up{job="crm-frontend"} == 0
           for: 1m
           labels:
+            app: crm
             severity: critical
             component: frontend
           annotations:
@@ -29,6 +30,7 @@ spec:
           expr: rate(nginx_http_requests_total{job="crm-frontend"}[5m]) > 10
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: frontend
           annotations:
@@ -45,6 +47,7 @@ spec:
           expr: up{job="crm-backend"} == 0
           for: 1m
           labels:
+            app: crm
             severity: critical
             component: backend
           annotations:
@@ -65,6 +68,7 @@ spec:
             ) > 0.05
           for: 5m
           labels:
+            app: crm
             severity: critical
             component: backend
           annotations:
@@ -83,6 +87,7 @@ spec:
             ) > 1
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: backend
           annotations:
@@ -99,6 +104,7 @@ spec:
           expr: pg_up{job="crm-postgres"} == 0
           for: 1m
           labels:
+            app: crm
             severity: critical
             component: database
           annotations:
@@ -113,6 +119,7 @@ spec:
             } > 80
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: database
           annotations:
@@ -141,6 +148,7 @@ spec:
             ) < 0.90
           for: 10m
           labels:
+            app: crm
             severity: warning
             component: database
           annotations:
@@ -166,6 +174,7 @@ spec:
             }
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: kubernetes
           annotations:
@@ -185,6 +194,7 @@ spec:
             }
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: kubernetes
           annotations:
@@ -201,6 +211,7 @@ spec:
             ) > 3
           for: 5m
           labels:
+            app: crm
             severity: warning
             component: kubernetes
           annotations:

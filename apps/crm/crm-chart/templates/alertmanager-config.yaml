@@ -19,6 +19,18 @@ spec:
             matchType: '=~'
             value: 'critical|warning'
         continue: true
+      - receiver: 'backstage'
+        matchers:
+          - name: app
+            matchType: '='
+            value: 'crm'
+        continue: true
+      - receiver: 'backstage'
+        matchers:
+          - name: alertname
+            matchType: '=~'
+            value: '^CRM.+'
+        continue: true
       - receiver: 'pagerduty-critical'
         matchers:
           - name: severity
@@ -30,6 +42,11 @@ spec:
     - name: 'discord-relay'
       webhookConfigs:
         - url: 'http://alertmanager-discord-relay.monitoring.svc.cluster.local:9094'
+          sendResolved: true
+
+    - name: 'backstage'
+      webhookConfigs:
+        - url: {{ .Values.backstage.alertsWebhook.url | quote }}
           sendResolved: true
 
     - name: 'pagerduty-critical'

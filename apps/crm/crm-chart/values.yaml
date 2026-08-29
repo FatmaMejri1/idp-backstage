@@ -15,6 +15,11 @@ frontend:
   replicas: 1
   nodePort: 30007
 
+# Kind pods reach Backstage on the host via host.docker.internal (Docker Desktop / WSL2).
+backstage:
+  alertsWebhook:
+    url: http://host.docker.internal:7008/api/alertmanager/webhook
+
 postgres:
   image: postgres:16-alpine
   db: crmdb

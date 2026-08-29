@@ -19,6 +19,7 @@ spec:
           labels:
             severity: critical
             component: frontend
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} frontend is down"
@@ -30,6 +31,7 @@ spec:
           labels:
             severity: warning
             component: frontend
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "High {{ .Values.name }} frontend request rate"
@@ -44,6 +46,7 @@ spec:
           labels:
             severity: critical
             component: backend
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} backend is down"
@@ -65,6 +68,7 @@ spec:
           labels:
             severity: critical
             component: backend
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "High {{ .Values.name }} backend 5xx error rate"
@@ -84,6 +88,7 @@ spec:
           labels:
             severity: warning
             component: backend
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "High {{ .Values.name }} backend response latency"
@@ -98,6 +103,7 @@ spec:
           labels:
             severity: critical
             component: database
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} PostgreSQL is down"
@@ -121,6 +127,7 @@ spec:
           labels:
             severity: warning
             component: kubernetes
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} frontend replicas unavailable"
@@ -141,6 +148,7 @@ spec:
           labels:
             severity: warning
             component: kubernetes
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} backend replicas unavailable"
@@ -158,6 +166,7 @@ spec:
           labels:
             severity: warning
             component: kubernetes
+            app: {{ .Values.name }}
             service: {{ .Values.name }}
           annotations:
             summary: "{{ .Values.name }} pod restarting frequently"

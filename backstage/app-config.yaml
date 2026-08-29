@@ -13,6 +13,9 @@ app:
     - page:catalog:
         config:
           path: /
+    # CRM alerts are PrometheusRules, not Grafana-managed unified alerts.
+    - entity-card:grafana/alerts: false
+    - entity-content:grafana/alerts: false
     # - page:home:
     #     config:
     #       path: /
@@ -111,6 +114,8 @@ backend:
   baseUrl: http://localhost:7008
   listen:
     port: 7008
+    # Kind Alertmanager reaches this webhook via host.docker.internal:7008
+    host: 0.0.0.0
     # Uncomment the following host directive to bind to specific interfaces
     # host: 127.0.0.1
   csp:
@@ -164,6 +169,15 @@ proxy:
         Authorization: 'token ${GITHUB_TOKEN:}'
         Accept: 'application/vnd.github+json'
         X-GitHub-Api-Version: '2022-11-28'
+
+    # Grafana plugin + Alerts tab (kube-prometheus-stack default user/password
+    # on this cluster is admin / admin123). Override with GRAFANA_AUTH_HEADER
+    # (e.g. "Bearer glsa_…") if you rotate Grafana credentials.
+    '/grafana/api':
+      target: 'http://localhost:3300'
+      changeOrigin: true
+      headers:
+        Authorization: '${GRAFANA_AUTH_HEADER:Basic YWRtaW46YWRtaW4xMjM=}'
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
@@ -260,6 +274,16 @@ grafana:
   # kind extraPortMappings: container 30300 -> host 3300
   domain: http://localhost:3300
   unifiedAlerting: true
+  # Alertmanager datasource UID (prometheus type) in Grafana
+  alertmanagerDataSource: alertmanager
+  # kube-prometheus-stack Prometheus datasource UID used by the Alerts card
+  prometheusDataSource: prometheus
+
+# Alertmanager posts firing/resolved alerts to POST /api/alertmanager/webhook
+alertmanager:
+  webhookToken: ${ALERTMANAGER_WEBHOOK_TOKEN:}
+  # Guest login should see firing CRM alerts in the notification bell.
+  recipientEntityRef: user:default/guest
 
 pagerDuty:
   eventsBaseUrl: 'https://events.pagerduty.com/v2'

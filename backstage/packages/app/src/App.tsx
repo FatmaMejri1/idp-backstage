@@ -6,6 +6,7 @@ import { navModule } from './modules/nav';
 import { homeModule } from './modules/home';
 import { pagerDutyPlugin } from './modules/pagerduty';
 import { githubActionsWithProxy } from './modules/github-actions';
+import { platformAlertsPlugin } from './modules/alerts';
 
 export default createApp({
   features: [
@@ -13,6 +14,7 @@ export default createApp({
     kubernetesPlugin,
     githubActionsWithProxy,
     grafanaPlugin,
+    platformAlertsPlugin,
     navModule,
     homeModule,
     pagerDutyPlugin,

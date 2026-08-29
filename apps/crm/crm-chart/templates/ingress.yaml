@@ -8,10 +8,21 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
+
   rules:
     - host: crm.local
       http:
         paths:
+          # CRM REST API
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: crm-backend
+                port:
+                  number: {{ .Values.backend.port }}
+
+          # Angular frontend
           - path: /
             pathType: Prefix
             backend:
