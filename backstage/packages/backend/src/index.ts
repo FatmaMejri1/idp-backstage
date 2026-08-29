@@ -1,9 +1,5 @@
 /*
- * Hi!
- *
- * Note that this is an EXAMPLE Backstage backend. Please check the README.
- *
- * Happy hacking!
+ * Backstage Backend with Custom Platform Engineering Actions
  */
 
 import { createBackend } from '@backstage/backend-defaults';
@@ -12,22 +8,21 @@ import {
   scaffolderActionsExtensionPoint,
   createTemplateAction,
 } from '@backstage/plugin-scaffolder-node';
+import { spawnSync } from 'child_process';
 
 // ============================================================
 // Platform Engineering Custom Action: github:repo:set-secret
-// Sets a GitHub Actions secret on a repository using the
-// Backstage GitHub integration token (which has write:packages).
-// This solves the GHCR first-push permission issue on personal
-// accounts without requiring any developer interaction.
+// Injects GHCR_PAT into the newly created GitHub repository
+// using gh CLI with the Backstage integration token.
 // ============================================================
 const githubSetRepoSecretAction = createTemplateAction({
   id: 'github:repo:set-secret',
   description:
-    'Sets a GitHub Actions secret on a repository. Used to inject GHCR_PAT for container image publishing.',
+    'Sets a GitHub Actions secret on a repository using gh CLI and Backstage GITHUB_TOKEN.',
   schema: {
     input: {
       type: 'object',
-      required: ['repoOwner', 'repoName', 'secretName', 'secretValue'],
+      required: ['repoOwner', 'repoName', 'secretName'],
       properties: {
         repoOwner: {
           type: 'string',
@@ -47,101 +42,53 @@ const githubSetRepoSecretAction = createTemplateAction({
         secretValue: {
           type: 'string',
           title: 'Secret Value',
-          description: 'Value of the secret to set',
-        },
-        token: {
-          type: 'string',
-          title: 'GitHub Token',
-          description: 'GitHub PAT to use for API authentication',
+          description: 'Value of the secret (optional, defaults to GITHUB_TOKEN)',
         },
       },
     },
   },
   async handler(ctx) {
-    const { repoOwner, repoName, secretName, secretValue, token } = ctx.input as {
+    const { repoOwner, repoName, secretName, secretValue } = ctx.input as {
       repoOwner: string;
       repoName: string;
       secretName: string;
-      secretValue: string;
-      token?: string;
+      secretValue?: string;
     };
 
-    // Use provided token or fall back to integration config
-    const githubToken =
-      token ||
+    const token =
+      secretValue ||
       ctx.integrations?.github?.byHost('github.com')?.config?.token ||
       process.env.GITHUB_TOKEN;
 
-    if (!githubToken) {
-      ctx.logger.warn('No GitHub token found - skipping secret injection');
+    if (!token) {
+      ctx.logger.warn('No GitHub token available to set secret.');
       return;
     }
 
     ctx.logger.info(
-      `Setting secret ${secretName} on ${repoOwner}/${repoName}`,
+      `Injecting GitHub Actions secret ${secretName} on ${repoOwner}/${repoName}...`,
     );
 
-    // Step 1: Get the repo's public key for secret encryption
-    const pubKeyRes = await fetch(
-      `https://api.github.com/repos/${repoOwner}/${repoName}/actions/secrets/public-key`,
+    const result = spawnSync(
+      'gh',
+      ['secret', 'set', secretName, '--repo', `${repoOwner}/${repoName}`],
       {
-        headers: {
-          Authorization: `token ${githubToken}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
+        input: token,
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
         },
+        encoding: 'utf-8',
       },
     );
 
-    if (!pubKeyRes.ok) {
-      const err = await pubKeyRes.text();
-      ctx.logger.warn(`Failed to get public key: ${pubKeyRes.status} ${err}`);
-      return;
-    }
-
-    const { key, key_id } = (await pubKeyRes.json()) as {
-      key: string;
-      key_id: string;
-    };
-
-    // Step 2: Encrypt the secret value using libsodium-wrappers (already in node_modules)
-    const sodium = await import('libsodium-wrappers');
-    await sodium.ready;
-
-    const binKey = sodium.from_base64(key, sodium.base64_variants.ORIGINAL);
-    const binSecretValue = sodium.from_string(secretValue);
-    const encryptedBytes = sodium.crypto_box_seal(binSecretValue, binKey);
-    const encryptedValue = sodium.to_base64(
-      encryptedBytes,
-      sodium.base64_variants.ORIGINAL,
-    );
-
-    // Step 3: Set the encrypted secret on the repository
-    const setRes = await fetch(
-      `https://api.github.com/repos/${repoOwner}/${repoName}/actions/secrets/${secretName}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `token ${githubToken}`,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          encrypted_value: encryptedValue,
-          key_id: key_id,
-        }),
-      },
-    );
-
-    if (setRes.ok || setRes.status === 201 || setRes.status === 204) {
+    if (result.status === 0) {
       ctx.logger.info(
-        `Successfully set secret ${secretName} on ${repoOwner}/${repoName}`,
+        `Successfully configured GitHub Actions secret ${secretName} on ${repoOwner}/${repoName}!`,
       );
     } else {
-      const err = await setRes.text();
       ctx.logger.warn(
-        `Failed to set secret ${secretName}: ${setRes.status} ${err}`,
+        `gh secret set exited with code ${result.status}: ${result.stderr}`,
       );
     }
   },
