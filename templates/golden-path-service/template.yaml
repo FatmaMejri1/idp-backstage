@@ -54,6 +54,8 @@ spec:
         description: ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: private
+        secrets:
+          GHCR_PAT: ${{ secrets.USER_OAUTH_TOKEN || secrets.GITHUB_TOKEN }}
 
     - id: set-workflow-permissions
       name: Configure GitHub Actions Workflow Permissions (Automated Platform Policy)
