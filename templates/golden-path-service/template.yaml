@@ -54,8 +54,15 @@ spec:
         description: ${{ parameters.description }}
         defaultBranch: main
         repoVisibility: private
-        secrets:
-          GHCR_PAT: ${{ secrets.USER_OAUTH_TOKEN || secrets.GITHUB_TOKEN }}
+
+    - id: set-ghcr-secret
+      name: Inject GHCR Publishing Secret (Platform Policy)
+      action: github:repo:set-secret
+      continueOnError: true
+      input:
+        repoOwner: FatmaMejri1
+        repoName: ${{ parameters.name }}
+        secretName: GHCR_PAT
 
     - id: set-workflow-permissions
       name: Configure GitHub Actions Workflow Permissions (Automated Platform Policy)
