@@ -1,5 +1,6 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
+
 metadata:
   name: golden-path-service
   title: Golden Path Service
@@ -10,6 +11,7 @@ metadata:
     - spring-boot
     - postgresql
     - kubernetes
+
 spec:
   owner: group:default/guests
   type: service
@@ -33,7 +35,7 @@ spec:
 
   steps:
     - id: fetch
-      name: Fetch Skeleton
+      name: Fetch Golden Path Skeleton
       action: fetch:template
       input:
         url: ./skeleton
@@ -42,16 +44,19 @@ spec:
         values:
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
+          githubOwner: FatmaMejri1
 
     - id: publish
-      name: Publish
+      name: Publish GitHub Repository
       action: publish:github
       input:
         repoUrl: github.com?owner=FatmaMejri1&repo=${{ parameters.name }}
         description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: private
 
     - id: register
-      name: Register
+      name: Register Component
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
@@ -61,6 +66,7 @@ spec:
     links:
       - title: Repository
         url: ${{ steps.publish.output.remoteUrl }}
+
       - title: Open in Catalog
         icon: catalog
         entityRef: ${{ steps.register.output.entityRef }}

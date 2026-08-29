@@ -5,6 +5,11 @@
 name: ${{ values.name }}
 description: ${{ values.description }}
 
+# GitHub Container Registry
+# The generated repository owner is injected by the Backstage template.
+imageRegistry: ghcr.io
+imageOwner: ${{ values.githubOwner }}
+
 # ============================================================
 # Backend - Spring Boot
 # ============================================================
@@ -83,16 +88,13 @@ postgres:
 monitoring:
   enabled: true
 
-  # Prometheus ServiceMonitors
   serviceMonitor:
     enabled: true
     interval: 15s
 
-  # Prometheus alert rules
   prometheusRules:
     enabled: true
 
-  # Grafana dashboards
   grafana:
     enabled: true
 

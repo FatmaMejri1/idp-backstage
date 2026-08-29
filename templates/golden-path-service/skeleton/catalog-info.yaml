@@ -1,12 +1,14 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
+
 metadata:
   name: ${{ values.name }}
   description: ${{ values.description }}
   annotations:
-    github.com/project-slug: FatmaMejri1/${{ values.name }}
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
     backstage.io/kubernetes-label-selector: app.kubernetes.io/name=${{ values.name }}
     backstage.io/kubernetes-namespace: default
+
 spec:
   type: service
   lifecycle: production
