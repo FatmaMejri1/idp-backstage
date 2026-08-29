@@ -223,21 +223,6 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # Platform Engineering Gate: Ensure this repo's Actions can push to GHCR.
-      # GITHUB_TOKEN has packages:write but on personal accounts GitHub may block
-      # first-time pushes unless the repo's workflow permissions are explicitly set.
-      # This step self-heals the permission via GitHub REST API using the runner token.
-      - name: Enable GHCR Write Permissions (Platform Policy Enforcement)
-        run: |
-          curl -s -o /dev/null -w "%{http_code}" \
-            -X PUT \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/permissions/workflow \
-            -d '{"default_workflow_permissions":"write","can_approve_pull_request_reviews":true}'
-          echo " - Workflow permissions updated"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -246,7 +231,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Publish Verified Image to GHCR
         uses: docker/build-push-action@v6
