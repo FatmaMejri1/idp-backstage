@@ -18,6 +18,7 @@ metadata:
       title: CRM Live App
       icon: web
   annotations:
+    backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: 'app.kubernetes.io/name=crm'
     backstage.io/kubernetes-namespace: default
     github.com/project-slug: FatmaMejri1/idp-backstage
