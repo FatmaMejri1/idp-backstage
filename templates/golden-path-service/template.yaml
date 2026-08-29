@@ -55,6 +55,20 @@ spec:
         defaultBranch: main
         repoVisibility: private
 
+    - id: set-workflow-permissions
+      name: Configure GitHub Actions Workflow Permissions (Automated Platform Policy)
+      action: http:backstage:request
+      continueOnError: true
+      input:
+        endpoint: /github/api
+        method: PUT
+        path: /repos/FatmaMejri1/${{ parameters.name }}/actions/permissions/workflow
+        headers:
+          Accept: application/vnd.github+json
+        body:
+          default_workflow_permissions: write
+          can_approve_pull_request_reviews: true
+
     - id: register
       name: Register Component
       action: catalog:register
