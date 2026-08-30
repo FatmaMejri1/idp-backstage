@@ -112,6 +112,48 @@ spec:
             '404':
               description: Client not found
 
+        put:
+          summary: Update client
+          description: Update an existing CRM client.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Client identifier
+              schema:
+                type: integer
+                format: int64
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ClientInput'
+          responses:
+            '200':
+              description: Client updated successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Client'
+            '404':
+              description: Client not found
+
+        delete:
+          summary: Delete client
+          description: Delete an existing CRM client.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Client identifier
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '204':
+              description: Client deleted successfully
+
       /contacts:
         get:
           summary: List all contacts
@@ -161,6 +203,48 @@ spec:
             '404':
               description: Contact not found
 
+        put:
+          summary: Update contact
+          description: Update an existing CRM contact.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Contact identifier
+              schema:
+                type: integer
+                format: int64
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ContactInput'
+          responses:
+            '200':
+              description: Contact updated successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Contact'
+            '404':
+              description: Contact not found
+
+        delete:
+          summary: Delete contact
+          description: Delete an existing CRM contact.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Contact identifier
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '200':
+              description: Contact deleted successfully
+
       /opportunites:
         get:
           summary: List all opportunities
@@ -209,6 +293,48 @@ spec:
                     $ref: '#/components/schemas/Opportunity'
             '404':
               description: Opportunity not found
+
+        put:
+          summary: Update opportunity
+          description: Update an existing CRM opportunity.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Opportunity identifier
+              schema:
+                type: integer
+                format: int64
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OpportunityInput'
+          responses:
+            '200':
+              description: Opportunity updated successfully
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Opportunity'
+            '404':
+              description: Opportunity not found
+
+        delete:
+          summary: Delete opportunity
+          description: Delete an existing CRM opportunity.
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Opportunity identifier
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '200':
+              description: Opportunity deleted successfully
 
     components:
 
