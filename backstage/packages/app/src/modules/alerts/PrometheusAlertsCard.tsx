@@ -12,7 +12,6 @@ import {
   Link,
 } from '@backstage/core-components';
 import {
-  configApiRef,
   discoveryApiRef,
   fetchApiRef,
   useApi,
@@ -116,7 +115,6 @@ function StateBadge({ state }: { state: string }) {
 
 export const PrometheusAlertsCard = () => {
   const { entity } = useEntity();
-  const configApi = useApi(configApiRef);
   const discoveryApi = useApi(discoveryApiRef);
   const fetchApi = useApi(fetchApiRef);
 
@@ -127,11 +125,8 @@ export const PrometheusAlertsCard = () => {
       ),
     [entity],
   );
-  const grafanaDomain =
-    configApi.getOptionalString('grafana.domain') ?? 'http://localhost:3300';
-  const configuredUid = configApi.getOptionalString(
-    'grafana.prometheusDataSource',
-  );
+  const grafanaDomain = 'http://localhost:3300';
+  const configuredUid = 'prometheus';
 
   const { value, loading, error } = useAsync(async () => {
     const proxyBase = await discoveryApi.getBaseUrl('proxy');
