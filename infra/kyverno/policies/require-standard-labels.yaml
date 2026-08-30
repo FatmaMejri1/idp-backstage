@@ -1,0 +1,33 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-standard-labels
+  annotations:
+    policies.kyverno.io/title: Require Standard Platform Labels
+    policies.kyverno.io/category: Governance
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod, Deployment, Service
+    policies.kyverno.io/description: >-
+      Workloads must contain standard CNCF metadata labels (app.kubernetes.io/name,
+      app.kubernetes.io/managed-by) for unified catalog discovery and telemetry.
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: check-standard-labels
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+                - Deployment
+                - Service
+              namespaces:
+                - default
+                - apps
+      validate:
+        message: "Workloads must have app.kubernetes.io/name label."
+        pattern:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "?*"

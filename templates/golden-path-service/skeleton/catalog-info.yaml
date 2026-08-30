@@ -3,13 +3,42 @@ kind: Component
 
 metadata:
   name: ${{ values.name }}
+  title: ${{ values.name }}
   description: ${{ values.description }}
+
+  tags:
+    - kubernetes
+    - gitops
+
+  links:
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+
   annotations:
+    # GitHub integration
     github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+
+    # TechDocs - enables Docs tab (Scorecard: Docs check)
+    backstage.io/techdocs-ref: dir:.
+
+    # Kubernetes - links service to cluster workloads
     backstage.io/kubernetes-label-selector: app.kubernetes.io/name=${{ values.name }}
     backstage.io/kubernetes-namespace: default
+
+    # Grafana - dashboard + alert selector (Scorecard: Monitoring check)
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+
+    # PagerDuty - on-call routing (Scorecard: Alerting check)
+    # Replace with the real PagerDuty Service ID after registering the service
+    pagerduty.com/service-id: REPLACE_WITH_PAGERDUTY_SERVICE_ID
 
 spec:
   type: service
   lifecycle: production
   owner: group:default/guests
+  system: ${{ values.name }}-system

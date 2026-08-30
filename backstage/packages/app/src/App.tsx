@@ -7,6 +7,7 @@ import { homeModule } from './modules/home';
 import { pagerDutyPlugin } from './modules/pagerduty';
 import { githubActionsWithProxy } from './modules/github-actions';
 import { platformAlertsPlugin } from './modules/alerts';
+import { serviceMaturityPlugin } from './modules/scorecard';
 
 export default createApp({
   features: [
@@ -15,6 +16,7 @@ export default createApp({
     githubActionsWithProxy,
     grafanaPlugin,
     platformAlertsPlugin,
+    serviceMaturityPlugin,
     navModule,
     homeModule,
     pagerDutyPlugin,
