@@ -138,14 +138,15 @@ export const ServiceMaturityCard = () => {
 
     // 6. Declarative GitOps
     const isService = entity.spec?.type === 'service';
+    const appSlug = entityName === 'crm' ? 'crm-app' : \-app\;
     list.push({
       id: 'gitops-delivery',
       category: 'Delivery',
       name: 'Declarative GitOps Delivery',
       description: 'ArgoCD automated continuous synchronization from Git repository',
       status: isService ? 'passed' : 'warning',
-      details: 'ArgoCD crm-application.yaml watching Helm values',
-      link: 'http://localhost:8080/applications/crm-app',
+      details: \ArgoCD \ watching Helm values\,
+      link: \http://localhost:8080/applications/\,
     });
 
     return list;
