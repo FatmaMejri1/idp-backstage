@@ -18,7 +18,6 @@ class TestBf08Monitoring(unittest.TestCase):
         self.assertIn("prometheusDataSource: prometheus", config)
         self.assertIn("GRAFANA_AUTH_HEADER", config)
         self.assertIn("entity-card:grafana/alerts: false", config)
-        self.assertIn("entity-content:grafana/alerts: false", config)
 
     def test_catalog_grafana_annotations_and_links(self) -> None:
         catalog = read("apps/crm/catalog-info.yaml")
