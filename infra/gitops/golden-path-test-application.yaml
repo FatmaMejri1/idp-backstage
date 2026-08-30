@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: golden-path-test-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/FatmaMejri1/golden-path-test.git'
+    targetRevision: main
+    path: deploy/helm/golden-path-service
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
