@@ -39,6 +39,7 @@ type GrafanaDatasource = {
 };
 
 export type PlatformAlert = {
+  id: string;
   name: string;
   state: string;
   severity: string;
@@ -174,6 +175,7 @@ export const PrometheusAlertsCard = () => {
         }
         const labels = rule.labels ?? {};
         matched.push({
+          id: `${group.name || 'default'}-${rule.name}`,
           name: rule.name,
           state: normalizeState(rule),
           severity: labels.severity ?? 'n/a',
