@@ -291,7 +291,7 @@ spec:
               example: ivory.carter@gmail.com
             phone:
               type: string
-              example: "(505) 457-1534
+              example: "(505) 457-1534"
             clientId:
               type: integer
               format: int64
