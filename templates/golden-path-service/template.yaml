@@ -33,6 +33,12 @@ spec:
           type: string
           description: Short description of the service
 
+        pagerdutyServiceId:
+          title: PagerDuty Service ID
+          type: string
+          description: PagerDuty Service ID for on-call escalation and incident management
+          default: PCIJWYX
+
   steps:
     - id: fetch
       name: Fetch Golden Path Skeleton
@@ -45,6 +51,7 @@ spec:
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
           githubOwner: FatmaMejri1
+          pagerdutyServiceId: ${{ parameters.pagerdutyServiceId }}
 
     - id: publish
       name: Publish GitHub Repository

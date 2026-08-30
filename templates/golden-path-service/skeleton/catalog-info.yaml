@@ -34,8 +34,7 @@ metadata:
     grafana/alert-label-selector: app=${{ values.name }}
 
     # PagerDuty - on-call routing (Scorecard: Alerting check)
-    # Replace with the real PagerDuty Service ID after registering the service
-    pagerduty.com/service-id: REPLACE_WITH_PAGERDUTY_SERVICE_ID
+    pagerduty.com/service-id: ${{ values.pagerdutyServiceId }}
 
 spec:
   type: service
