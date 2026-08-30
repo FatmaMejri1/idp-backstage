@@ -4,7 +4,7 @@ kind: System
 metadata:
   name: crm-system
   title: CRM Platform System
-  description: Core customer management ecosystem comprising web frontend, microservices backend, and persistence layer.
+  description: Core customer management ecosystem comprising web frontend, backend services, and PostgreSQL persistence.
   tags:
     - crm
     - enterprise
@@ -18,7 +18,7 @@ kind: Resource
 metadata:
   name: crm-database
   title: CRM PostgreSQL Database
-  description: High-availability relational database storing customer records, transactions, and audit logs.
+  description: PostgreSQL database storing CRM customers, contacts, opportunities, and related data.
   tags:
     - postgresql
     - relational
@@ -39,7 +39,7 @@ kind: API
 metadata:
   name: crm-api
   title: CRM REST API
-  description: REST API for CRM clients, contacts, and sales opportunities exposed by the Spring Boot backend.
+  description: REST API exposed by the CRM Spring Boot backend for clients, contacts, and opportunities.
   tags:
     - openapi
     - rest
@@ -49,36 +49,24 @@ spec:
   lifecycle: production
   owner: user:guest
   system: crm-system
-
   definition: |
     openapi: 3.0.3
 
     info:
       title: CRM REST API
       version: 1.0.0
-      description: REST API exposed by the CRM Spring Boot backend for managing clients, contacts, and opportunities.
+      description: REST API exposed by the CRM Spring Boot backend.
 
     servers:
       - url: http://crm.local/api
-        description: CRM API through Kubernetes Ingress
-
-    tags:
-      - name: Clients
-        description: Client management operations
-      - name: Contacts
-        description: Contact management operations
-      - name: Opportunities
-        description: Sales opportunity management operations
+        description: CRM Ingress Gateway
 
     paths:
 
       /clients:
         get:
-          tags:
-            - Clients
           summary: List all clients
-          description: Retrieve all clients.
-          operationId: getAllClients
+          description: Retrieve all CRM clients.
           responses:
             '200':
               description: Successful response
@@ -90,11 +78,7 @@ spec:
                       $ref: '#/components/schemas/Client'
 
         post:
-          tags:
-            - Clients
           summary: Create a client
-          description: Create a new client.
-          operationId: createClient
           requestBody:
             required: true
             content:
@@ -102,29 +86,22 @@ spec:
                 schema:
                   $ref: '#/components/schemas/ClientInput'
           responses:
-            '200':
+            '201':
               description: Client created successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Client'
+            '400':
+              description: Invalid request
 
       /clients/{id}:
-        parameters:
-          - name: id
-            in: path
-            required: true
-            description: Client identifier
-            schema:
-              type: integer
-              format: int64
-
         get:
-          tags:
-            - Clients
           summary: Get client by ID
-          description: Retrieve a client using its identifier.
-          operationId: getClientById
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Client identifier
+              schema:
+                type: integer
+                format: int64
           responses:
             '200':
               description: Client found
@@ -135,43 +112,10 @@ spec:
             '404':
               description: Client not found
 
-        put:
-          tags:
-            - Clients
-          summary: Update client
-          description: Update an existing client.
-          operationId: updateClient
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ClientInput'
-          responses:
-            '200':
-              description: Client updated successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Client'
-
-        delete:
-          tags:
-            - Clients
-          summary: Delete client
-          description: Delete an existing client.
-          operationId: deleteClient
-          responses:
-            '204':
-              description: Client deleted successfully
-
       /contacts:
         get:
-          tags:
-            - Contacts
           summary: List all contacts
-          description: Retrieve all contacts.
-          operationId: getAllContacts
+          description: Retrieve all CRM contacts.
           responses:
             '200':
               description: Successful response
@@ -183,11 +127,7 @@ spec:
                       $ref: '#/components/schemas/Contact'
 
         post:
-          tags:
-            - Contacts
           summary: Create a contact
-          description: Create a new contact.
-          operationId: createContact
           requestBody:
             required: true
             content:
@@ -195,29 +135,22 @@ spec:
                 schema:
                   $ref: '#/components/schemas/ContactInput'
           responses:
-            '200':
+            '201':
               description: Contact created successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Contact'
+            '400':
+              description: Invalid request
 
       /contacts/{id}:
-        parameters:
-          - name: id
-            in: path
-            required: true
-            description: Contact identifier
-            schema:
-              type: integer
-              format: int64
-
         get:
-          tags:
-            - Contacts
           summary: Get contact by ID
-          description: Retrieve a contact using its identifier.
-          operationId: getContactById
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Contact identifier
+              schema:
+                type: integer
+                format: int64
           responses:
             '200':
               description: Contact found
@@ -225,44 +158,13 @@ spec:
                 application/json:
                   schema:
                     $ref: '#/components/schemas/Contact'
-
-        put:
-          tags:
-            - Contacts
-          summary: Update contact
-          description: Update an existing contact.
-          operationId: updateContact
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ContactInput'
-          responses:
-            '200':
-              description: Contact updated successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Contact'
-
-        delete:
-          tags:
-            - Contacts
-          summary: Delete contact
-          description: Delete an existing contact.
-          operationId: deleteContact
-          responses:
-            '200':
-              description: Contact deleted successfully
+            '404':
+              description: Contact not found
 
       /opportunites:
         get:
-          tags:
-            - Opportunities
           summary: List all opportunities
-          description: Retrieve all sales opportunities.
-          operationId: getAllOpportunites
+          description: Retrieve all CRM opportunities.
           responses:
             '200':
               description: Successful response
@@ -271,83 +173,45 @@ spec:
                   schema:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Opportunite'
+                      $ref: '#/components/schemas/Opportunity'
 
         post:
-          tags:
-            - Opportunities
           summary: Create an opportunity
-          description: Create a new sales opportunity.
-          operationId: createOpportunite
           requestBody:
             required: true
             content:
               application/json:
                 schema:
-                  $ref: '#/components/schemas/OpportuniteInput'
+                  $ref: '#/components/schemas/OpportunityInput'
           responses:
-            '200':
+            '201':
               description: Opportunity created successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Opportunite'
+            '400':
+              description: Invalid request
 
       /opportunites/{id}:
-        parameters:
-          - name: id
-            in: path
-            required: true
-            description: Opportunity identifier
-            schema:
-              type: integer
-              format: int64
-
         get:
-          tags:
-            - Opportunities
           summary: Get opportunity by ID
-          description: Retrieve a sales opportunity using its identifier.
-          operationId: getOpportuniteById
+          parameters:
+            - name: id
+              in: path
+              required: true
+              description: Opportunity identifier
+              schema:
+                type: integer
+                format: int64
           responses:
             '200':
               description: Opportunity found
               content:
                 application/json:
                   schema:
-                    $ref: '#/components/schemas/Opportunite'
-
-        put:
-          tags:
-            - Opportunities
-          summary: Update opportunity
-          description: Update an existing sales opportunity.
-          operationId: updateOpportunite
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/OpportuniteInput'
-          responses:
-            '200':
-              description: Opportunity updated successfully
-              content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Opportunite'
-
-        delete:
-          tags:
-            - Opportunities
-          summary: Delete opportunity
-          description: Delete an existing sales opportunity.
-          operationId: deleteOpportunite
-          responses:
-            '200':
-              description: Opportunity deleted successfully
+                    $ref: '#/components/schemas/Opportunity'
+            '404':
+              description: Opportunity not found
 
     components:
+
       schemas:
 
         Client:
@@ -356,17 +220,16 @@ spec:
             id:
               type: integer
               format: int64
-              readOnly: true
               example: 1
             name:
               type: string
-              example: Acme Corporation
+              example: Nienow LLC
             phone:
               type: string
-              example: "+216 71 123 456"
+              example: "(305) 366-2029"
             company:
               type: string
-              example: Acme Corporation
+              example: Waters, Cruickshank and Stanton
 
         ClientInput:
           type: object
@@ -377,13 +240,13 @@ spec:
           properties:
             name:
               type: string
-              example: Acme Corporation
+              example: Nienow LLC
             phone:
               type: string
-              example: "+216 71 123 456"
+              example: "(305) 366-2029"
             company:
               type: string
-              example: Acme Corporation
+              example: Waters, Cruickshank and Stanton
 
         Contact:
           type: object
@@ -391,21 +254,20 @@ spec:
             id:
               type: integer
               format: int64
-              readOnly: true
               example: 1
             firstName:
               type: string
-              example: Jane
+              example: Irving
             lastName:
               type: string
-              example: Doe
+              example: Gottlieb
             email:
               type: string
               format: email
-              example: jane.doe@example.com
+              example: ivory.carter@gmail.com
             phone:
               type: string
-              example: "+216 20 123 456"
+              example: "(505) 457-1534"
             client:
               $ref: '#/components/schemas/Client'
 
@@ -415,73 +277,78 @@ spec:
             - firstName
             - lastName
             - email
+            - phone
           properties:
             firstName:
               type: string
-              example: Jane
+              example: Irving
             lastName:
               type: string
-              example: Doe
+              example: Gottlieb
             email:
               type: string
               format: email
-              example: jane.doe@example.com
+              example: ivory.carter@gmail.com
             phone:
               type: string
-              example: "+216 20 123 456"
-            client:
-              $ref: '#/components/schemas/Client'
+              example: "(505) 457-1534
+            clientId:
+              type: integer
+              format: int64
+              example: 1
 
-        Opportunite:
+        Opportunity:
           type: object
           properties:
             id:
               type: integer
               format: int64
-              readOnly: true
               example: 1
             titre:
               type: string
-              example: Enterprise CRM Contract
+              example: Awesome Plastic Plate
             montant:
               type: number
               format: double
-              example: 25000.00
+              example: 20372.00
             statut:
               type: string
+              example: GAGNEE
               enum:
                 - PROSPECTION
                 - NEGOCIATION
                 - GAGNEE
                 - PERDUE
-              example: PROSPECTION
             client:
               $ref: '#/components/schemas/Client'
 
-        OpportuniteInput:
+        OpportunityInput:
           type: object
           required:
             - titre
             - montant
             - statut
+            - clientId
           properties:
             titre:
               type: string
-              example: Enterprise CRM Contract
+              example: Awesome Plastic Plate
             montant:
               type: number
               format: double
-              example: 25000.00
+              example: 20372.00
             statut:
               type: string
+              example: PROSPECTION
               enum:
                 - PROSPECTION
                 - NEGOCIATION
                 - GAGNEE
                 - PERDUE
-              example: PROSPECTION
-            client:
-              $ref: '#/components/schemas/Client'
+            clientId:
+              type: integer
+              format: int64
+              example: 1
 
 ---
 apiVersion: backstage.io/v1alpha1
@@ -489,13 +356,14 @@ kind: Component
 metadata:
   name: crm
   title: CRM
-  description: Customer Relationship Management (CRM) platform reference application.
+  description: Customer Relationship Management platform reference application.
   tags:
     - spring-boot
     - angular
     - postgresql
     - kubernetes
     - gitops
+
   links:
     - url: http://localhost:3300/explore?schemaVersion=1&panes=%7B%22a%22:%7B%22datasource%22:%22efw265rn227eof%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bnamespace%3D%5C%22default%5C%22%7D%22,%22queryType%22:%22range%22%7D%5D%7D%7D
       title: Loki Log Explorer
@@ -527,7 +395,9 @@ spec:
   lifecycle: production
   owner: user:guest
   system: crm-system
+
   providesApis:
     - crm-api
+
   dependsOn:
     - resource:default/crm-database
