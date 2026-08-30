@@ -4,7 +4,7 @@ kind: Template
 metadata:
   name: golden-path-service
   title: Golden Path Service
-  description: Create a production-ready Angular + Spring Boot + PostgreSQL service
+  description: Create a production-ready Angular + Spring Boot + PostgreSQL service with automated CI/CD, Governance, and PagerDuty On-Call
   tags:
     - recommended
     - angular
@@ -25,7 +25,7 @@ spec:
         name:
           title: Service Name
           type: string
-          description: Name of the service
+          description: Name of the service (lowercase alphanumeric with dashes)
           pattern: '^[a-z0-9-]+$'
 
         description:
@@ -33,13 +33,29 @@ spec:
           type: string
           description: Short description of the service
 
-        pagerdutyServiceId:
-          title: PagerDuty Service ID
-          type: string
-          description: PagerDuty Service ID for on-call escalation and incident management
-          default: PCIJWYX
-
   steps:
+    - id: create-pagerduty-service
+      name: Provision PagerDuty On-Call Service (Automated Platform Policy)
+      action: http:backstage:request
+      continueOnError: true
+      input:
+        method: POST
+        path: /proxy/pagerduty/services
+        headers:
+          content-type: application/json
+          accept: application/vnd.pagerduty+json;version=2
+        body:
+          service:
+            name: ${{ parameters.name }}
+            description: On-call escalation service for ${{ parameters.name }} (Golden Path IDP)
+            auto_resolve_timeout: 14400
+            acknowledgement_timeout: 1800
+            status: active
+            escalation_policy:
+              id: PHDR94V
+              type: escalation_policy_reference
+            alert_creation: create_alerts_and_incidents
+
     - id: fetch
       name: Fetch Golden Path Skeleton
       action: fetch:template
@@ -51,7 +67,7 @@ spec:
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
           githubOwner: FatmaMejri1
-          pagerdutyServiceId: ${{ parameters.pagerdutyServiceId }}
+          pagerdutyServiceId: ${{ steps['create-pagerduty-service'].output.body.service.id | default("PCIJWYX") }}
 
     - id: publish
       name: Publish GitHub Repository
