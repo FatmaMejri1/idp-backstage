@@ -1,6 +1,19 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.name }}-system
+  title: ${{ values.name }} System
+  description: Core system and ecosystem for ${{ values.name }} service.
+  tags:
+    - golden-path
+    - microservices
+spec:
+  owner: group:default/guests
+
+---
 apiVersion: backstage.io/v1alpha1
 kind: Component
-
 metadata:
   name: ${{ values.name }}
   title: ${{ values.name }}
