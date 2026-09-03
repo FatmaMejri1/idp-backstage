@@ -1,7 +1,7 @@
 /*
  * Backstage Backend with Custom Platform Engineering Actions
  */
-
+import 'dotenv/config';
 import { createBackend } from '@backstage/backend-defaults';
 import { createBackendModule } from '@backstage/backend-plugin-api';
 import {
