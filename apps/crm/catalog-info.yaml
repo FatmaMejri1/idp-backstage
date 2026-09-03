@@ -551,10 +551,16 @@ metadata:
       title: ArgoCD GitOps
       icon: cloud
 
+    - url: http://localhost:3300/d/crm-ai-advisor/crm-ai-advisor
+      title: Grafana AI Advisor Dashboard
+      icon: dashboard
+
   annotations:
     backstage.io/kubernetes-label-selector: 'app=crm-ai-advisor'
     backstage.io/kubernetes-namespace: default
     github.com/project-slug: FatmaMejri1/idp-backstage
+    grafana/dashboard-selector: 'crm-ai-advisor'
+    grafana/alert-label-selector: 'app=crm'
 
 spec:
   type: service
