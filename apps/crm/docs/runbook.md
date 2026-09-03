@@ -1,22 +1,35 @@
-# Runbook
+# Platform Operations Runbook
 
-## CRMBackendDown fires
+## Daily Operations & Useful Commands
 
-1. Check pod status: `kubectl get pods -n default -l app=crm-backend`
-2. Check logs: `kubectl logs -n default deploy/crm-backend --tail 50`
-3. Check recent deployments: `kubectl rollout history deployment/crm-backend -n default`
-
-## CRMPostgreSQLHighConnections fires
-
-Check active connections and slow queries:
+### Check Microservice Status
 ```bash
-kubectl exec -n default deploy/crm-backend -- true  # confirm backend reachable
+kubectl get pods -n default -l app.kubernetes.io/name=crm
+kubectl get svc -n default -l app.kubernetes.io/name=crm
 ```
-Review `hikaricp_connections_active` in the CRM Backend Grafana dashboard.
 
-## Backend restarting frequently (CRMPodRestarting)
-
-Check for OOMKilled or crash loops:
+### Inspect Ingress & Routes
 ```bash
-kubectl describe pod -n default -l app=crm-backend | grep -A5 "Last State"
+kubectl get ingress -n default
+curl -i http://crm.local/ai/health
+```
+
+### Check Logs with kubectl or Loki
+```bash
+# AI Advisor logs
+kubectl logs -n default -l app=crm-ai-advisor --tail=50 -f
+
+# Backend logs
+kubectl logs -n default -l app=crm-backend --tail=50 -f
+```
+
+### Force ArgoCD Manual Sync
+```bash
+kubectl get application crm-app -n argocd -o yaml
+```
+
+### Restart a Service
+```bash
+kubectl rollout restart deployment crm-ai-advisor -n default
+kubectl rollout status deployment crm-ai-advisor -n default
 ```

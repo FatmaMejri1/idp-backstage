@@ -1,18 +1,41 @@
-# Deployment
+# Deployment & GitOps
 
-The CRM is deployed via a Helm chart (`apps/crm/crm-chart`) and managed through ArgoCD's GitOps sync.
+The platform utilizes declarative **GitOps** powered by **ArgoCD**.
 
-## Local development
+## GitOps Principles
 
-```bash
-kind create cluster --config infra/kind/kind-config.yaml
-helm install crm apps/crm/crm-chart
+1. **Single Source of Truth**: Helm chart located in `apps/crm/crm-chart/` defines all desired Kubernetes states.
+2. **Automated Reconciliation**: ArgoCD continuously compares cluster state against `main` branch.
+3. **Self-Healing**: Manual changes made directly with `kubectl` are automatically reverted to match Git.
+
+## Helm Chart Structure
+
+```text
+apps/crm/crm-chart/
+├── Chart.yaml
+├── values.yaml
+├── dashboards/
+│   ├── crm-backend-dashboard.json
+│   ├── crm-frontend-dashboard.json
+│   ├── crm-postgres-dashboard.json
+│   └── crm-ai-advisor-dashboard.json
+└── templates/
+    ├── backend-deployment.yaml
+    ├── backend-service.yaml
+    ├── backend-servicemonitor.yaml
+    ├── backend-grafana-dashboard.yaml
+    ├── frontend-deployment.yaml
+    ├── frontend-service.yaml
+    ├── frontend-servicemonitor.yaml
+    ├── frontend-grafana-dashboard.yaml
+    ├── ai-advisor-deployment.yaml
+    ├── ai-advisor-service.yaml
+    ├── ai-advisor-servicemonitor.yaml
+    ├── ai-advisor-grafana-dashboard.yaml
+    ├── postgres-deployment.yaml
+    ├── postgres-service.yaml
+    ├── postgres-servicemonitor.yaml
+    ├── postgres-grafana-dashboard.yaml
+    ├── ingress.yaml
+    └── crm-alert-rules.yaml
 ```
-
-## GitOps flow
-
-Any push to `main` touching `apps/crm/crm-chart/**` is automatically picked up by ArgoCD (`crm-app` Application) and synced to the cluster — no manual `helm upgrade` needed.
-
-## Ingress
-
-The app is reachable at `http://crm.local` once `127.0.0.1 crm.local` is added to `/etc/hosts`.

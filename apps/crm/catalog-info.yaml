@@ -556,6 +556,7 @@ metadata:
       icon: dashboard
 
   annotations:
+    backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: 'app=crm-ai-advisor'
     backstage.io/kubernetes-namespace: default
     github.com/project-slug: FatmaMejri1/idp-backstage
