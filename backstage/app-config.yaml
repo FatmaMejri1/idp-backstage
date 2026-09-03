@@ -240,6 +240,12 @@ catalog:
       rules:
         - allow: [Template]
 
+    # Golden Path AI Service template (FastAPI + Gemini)
+    - type: file
+      target: ../../../templates/golden-path-ai-service/template.yaml
+      rules:
+        - allow: [Template]
+
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml

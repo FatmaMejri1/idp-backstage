@@ -1,0 +1,53 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.name }}-system
+  title: ${{ values.name }} System
+  description: Core system for ${{ values.name }} AI microservice.
+  tags:
+    - ai
+    - microservices
+spec:
+  owner: group:default/guests
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  title: ${{ values.name }}
+  description: ${{ values.description }}
+
+  tags:
+    - python
+    - fastapi
+    - gemini
+    - ai
+    - kubernetes
+    - gitops
+
+  links:
+    - url: http://crm.local/ai/docs
+      title: Swagger Docs
+      icon: dashboard
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-label-selector: app=${{ values.name }}
+    backstage.io/kubernetes-namespace: default
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
