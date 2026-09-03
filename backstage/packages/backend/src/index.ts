@@ -21,44 +21,20 @@ const githubSetRepoSecretAction = createTemplateAction({
   description:
     'Sets a GitHub Actions secret on a repository using gh CLI and Backstage GITHUB_TOKEN.',
   schema: {
-    input: {
-      type: 'object',
-      required: ['repoOwner', 'repoName', 'secretName'],
-      properties: {
-        repoOwner: {
-          type: 'string',
-          title: 'Repository Owner',
-          description: 'GitHub username or organization',
-        },
-        repoName: {
-          type: 'string',
-          title: 'Repository Name',
-          description: 'Name of the GitHub repository',
-        },
-        secretName: {
-          type: 'string',
-          title: 'Secret Name',
-          description: 'Name of the GitHub Actions secret to set',
-        },
-        secretValue: {
-          type: 'string',
-          title: 'Secret Value',
-          description: 'Value of the secret (optional, defaults to GITHUB_TOKEN)',
-        },
-      },
-    },
+    input: z =>
+      z.object({
+        repoOwner: z.string().describe('GitHub username or organization'),
+        repoName: z.string().describe('Name of the GitHub repository'),
+        secretName: z.string().describe('Name of the GitHub Actions secret to set'),
+        secretValue: z.string().optional().describe('Value of the secret (optional, defaults to GITHUB_TOKEN)'),
+      }),
   },
   async handler(ctx) {
-    const { repoOwner, repoName, secretName, secretValue } = ctx.input as {
-      repoOwner: string;
-      repoName: string;
-      secretName: string;
-      secretValue?: string;
-    };
+    const { repoOwner, repoName, secretName, secretValue } = ctx.input;
 
     const token =
       secretValue ||
-      ctx.integrations?.github?.byHost('github.com')?.config?.token ||
+      (ctx as any).integrations?.github?.byHost('github.com')?.config?.token ||
       process.env.GITHUB_TOKEN;
 
     if (!token) {
