@@ -14,66 +14,118 @@ permissions:
   contents: read
 
 jobs:
+
+  # ============================================================
+  # 1. SECURITY — SECRET SCANNING
+  # ============================================================
+
   secret-scan:
-    name: Secret Scan (Gitleaks)
+    name: 🔐 Secret Scan — Gitleaks
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Gitleaks
+
+      - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+  # ============================================================
+  # 2. SECURITY — SAST
+  # ============================================================
+
   sast-scan:
-    name: SAST Scan (Semgrep)
+    name: 🛡️ SAST — Semgrep
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Semgrep
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Semgrep
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install semgrep
+
+      - name: Run Semgrep security analysis
         working-directory: apps/crm/crm-frontend
         run: |
-          python3 -m pip install semgrep
-          semgrep scan --config=p/security-audit --config=p/owasp-top-ten --config=p/typescript . --severity ERROR
+          semgrep scan \
+            --config=p/security-audit \
+            --config=p/owasp-top-ten \
+            --config=p/typescript \
+            --severity ERROR \
+            .
+
+
+  # ============================================================
+  # 3. QUALITY — BUILD & TEST
+  # ============================================================
 
   test:
-    name: Build & Test
+    name: 🧪 Build & Test — Angular 21
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: apps/crm/crm-frontend/package-lock.json
+
       - name: Install dependencies
         working-directory: apps/crm/crm-frontend
         run: npm ci
-      - name: Run tests
+
+      - name: Run Angular tests
         working-directory: apps/crm/crm-frontend
         run: npx ng test --watch=false
 
-  build-scan-push:
-    name: Build, Scan & Push Image
+      - name: Build Angular application
+        working-directory: apps/crm/crm-frontend
+        run: npm run build
+
+
+  # ============================================================
+  # 4. CONTAINER — BUILD & SECURITY SCAN
+  # ============================================================
+
+  build-scan:
+    name: 🐳 Build & 🔍 Trivy Scan
     runs-on: ubuntu-latest
-    needs: [test]
+
+    needs:
+      - secret-scan
+      - sast-scan
+      - test
+
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Build image (local only, not pushed yet)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: apps/crm/crm-frontend
           push: false
           load: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Trivy scan (table, blocking)
+      - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -82,14 +134,33 @@ jobs:
           exit-code: '1'
 
 
-      - name: Log in to GHCR
+  # ============================================================
+  # 5. PUBLISH — GHCR
+  # ============================================================
+
+  publish:
+    name: 📦 Publish Image → GHCR
+    runs-on: ubuntu-latest
+
+    needs:
+      - build-scan
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image (only if scan passed)
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: apps/crm/crm-frontend
