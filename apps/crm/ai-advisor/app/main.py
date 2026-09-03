@@ -1,7 +1,7 @@
 import os
 import logging
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -37,12 +37,16 @@ class AdviceResponse(BaseModel):
     recommendation: str
 
 
-@app.get("/health")
+router = APIRouter()
+
+
+@router.get("/health")
 def health():
-    return {"status": "UP", "ai_key_loaded": bool(AI_API_KEY)}
+    key = os.environ.get("AI_API_KEY") or AI_API_KEY
+    return {"status": "UP", "ai_key_loaded": bool(key)}
 
 
-@app.post("/advise-opportunity", response_model=AdviceResponse)
+@router.post("/advise-opportunity", response_model=AdviceResponse)
 def advise_opportunity(opportunity: Opportunity):
     api_key = os.environ.get("AI_API_KEY") or AI_API_KEY
     if not api_key:
@@ -79,7 +83,7 @@ def advise_opportunity(opportunity: Opportunity):
         )
         logger.info("OpenAI response status=%s", response.status_code)
         logger.info("AI response body=%s", response.text)
-        
+
         response.raise_for_status()
         content = response.json()["choices"][0]["message"]["content"]
     except httpx.HTTPError as exc:
@@ -94,7 +98,7 @@ def advise_opportunity(opportunity: Opportunity):
         "**Prochaine action recommandée :**",
         "**Prochaine action recommandée:**",
         "Action recommandée :",
-        "Action recommandée:"
+        "Action recommandée:",
     ]:
         if marker in content:
             rec_marker = marker
@@ -123,3 +127,7 @@ def advise_opportunity(opportunity: Opportunity):
         recommendation = parts[1].strip() if len(parts) > 1 else ""
 
     return AdviceResponse(summary=summary, recommendation=recommendation)
+
+
+app.include_router(router)
+app.include_router(router, prefix="/ai")
