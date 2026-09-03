@@ -22,6 +22,17 @@ spec:
                 port:
                   number: {{ .Values.backend.port }}
 
+          {{- if .Values.aiAdvisor.enabled }}
+          # AI Advisor API
+          - path: /ai(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: crm-ai-advisor
+                port:
+                  number: {{ .Values.aiAdvisor.port }}
+          {{- end }}
+
           # Angular frontend
           - path: /
             pathType: Prefix

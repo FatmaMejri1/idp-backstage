@@ -6,6 +6,7 @@ import { OpportuniteService } from '../../services/opportunite.service';
 import { ClientService } from '../../services/client.service';
 import { Opportunite, StatutOpportunite } from '../../models/opportunite.model';
 import { Client } from '../../models/client.model';
+import { AiAdvisorService, AiAdvisorResponse } from '../../services/ai-advisor.service';
 
 @Component({
   selector: 'app-opportunite-form',
@@ -21,12 +22,17 @@ export class OpportuniteForm implements OnInit {
   clients: Client[] = [];
   statuts: StatutOpportunite[] = ['PROSPECTION', 'NEGOCIATION', 'GAGNEE', 'PERDUE'];
 
+  aiAdvice: AiAdvisorResponse | null = null;
+  aiLoading = false;
+  aiError = '';
+
   constructor(
     private fb: FormBuilder,
     private opportuniteService: OpportuniteService,
     private clientService: ClientService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private aiAdvisorService: AiAdvisorService
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +63,52 @@ export class OpportuniteForm implements OnInit {
         this.cdr.detectChanges();
       });
     }
+  }
+
+  getAiAdvice(): void {
+    if (this.opportuniteForm.invalid) {
+      this.opportuniteForm.markAllAsTouched();
+      this.aiError = 'Veuillez renseigner le titre, le montant et sélectionner un client.';
+      return;
+    }
+
+    const formValue = this.opportuniteForm.value;
+
+    const selectedClient = this.clients.find(
+      client => client.id === Number(formValue.clientId) || client.id === formValue.clientId
+    );
+
+    if (!selectedClient) {
+      this.aiError = 'Veuillez sélectionner un client valide.';
+      return;
+    }
+
+    this.aiLoading = true;
+    this.aiError = '';
+    this.aiAdvice = null;
+
+    const request = {
+      client_name: selectedClient.name,
+      montant: Number(formValue.montant),
+      statut: formValue.statut,
+      notes: formValue.titre
+    };
+
+    this.aiAdvisorService.adviseOpportunity(request).subscribe({
+      next: (response) => {
+        this.aiAdvice = response;
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('AI Advisor error:', err);
+        this.aiError =
+          err?.error?.detail ||
+          'Impossible de contacter le service AI Advisor.';
+        this.aiLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onSubmit(): void {

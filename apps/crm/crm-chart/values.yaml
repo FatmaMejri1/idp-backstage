@@ -15,6 +15,15 @@ frontend:
   replicas: 1
   nodePort: 30007
 
+aiAdvisor:
+  enabled: true
+  image:
+    repository: ghcr.io/fatmamejri1/crm-ai-advisor
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 8001
+  replicas: 1
+
 # Kind pods reach Backstage on the host via host.docker.internal (Docker Desktop / WSL2).
 backstage:
   alertsWebhook:

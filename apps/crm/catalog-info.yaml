@@ -527,3 +527,37 @@ spec:
 
   dependsOn:
     - resource:default/crm-database
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crm-ai-advisor
+  title: CRM AI Advisor
+  description: FastAPI AI Advisor microservice powered by Gemini for commercial opportunity analysis.
+  tags:
+    - fastapi
+    - python
+    - gemini
+    - ai
+    - kubernetes
+
+  links:
+    - url: http://crm.local/ai/docs
+      title: AI Advisor Swagger Docs
+      icon: dashboard
+
+    - url: http://localhost:8080/applications/crm-app
+      title: ArgoCD GitOps
+      icon: cloud
+
+  annotations:
+    backstage.io/kubernetes-label-selector: 'app=crm-ai-advisor'
+    backstage.io/kubernetes-namespace: default
+    github.com/project-slug: FatmaMejri1/idp-backstage
+
+spec:
+  type: service
+  lifecycle: production
+  owner: user:guest
+  system: crm-system

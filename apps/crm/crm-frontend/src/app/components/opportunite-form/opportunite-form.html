@@ -38,6 +38,39 @@
       </span>
     </div>
 
+    <div class="ai-advisor">
+      <h3>🤖 AI Advisor</h3>
+      <p>Analysez cette opportunité et obtenez une recommandation commerciale.</p>
+
+      <button
+        type="button"
+        class="btn-ai"
+        (click)="getAiAdvice()"
+        [disabled]="aiLoading"
+      >
+        {{ aiLoading ? 'Analyse en cours...' : '✨ Obtenir une recommandation IA' }}
+      </button>
+
+      <div class="ai-loading" *ngIf="aiLoading">
+        Analyse de l'opportunité par l'IA...
+      </div>
+
+      <div class="ai-error" *ngIf="aiError">
+        {{ aiError }}
+      </div>
+
+      <div class="ai-result" *ngIf="aiAdvice">
+        <div class="ai-section">
+          <strong>📋 Résumé</strong>
+          <p>{{ aiAdvice.summary }}</p>
+        </div>
+        <div class="ai-section">
+          <strong>🎯 Action recommandée</strong>
+          <p>{{ aiAdvice.recommendation }}</p>
+        </div>
+      </div>
+    </div>
+
     <button type="submit" [disabled]="opportuniteForm.invalid">Enregistrer</button>
   </form>
 </div>

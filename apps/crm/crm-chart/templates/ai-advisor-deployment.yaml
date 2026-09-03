@@ -1,0 +1,50 @@
+{{- if .Values.aiAdvisor.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crm-ai-advisor
+  labels:
+    {{- include "crm.labels" . | nindent 4 }}
+    app: crm-ai-advisor
+spec:
+  replicas: {{ .Values.aiAdvisor.replicas }}
+  selector:
+    matchLabels:
+      app: crm-ai-advisor
+  template:
+    metadata:
+      labels:
+        {{- include "crm.labels" . | nindent 8 }}
+        app: crm-ai-advisor
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: ai-advisor
+          image: "{{ .Values.aiAdvisor.image.repository }}:{{ .Values.aiAdvisor.image.tag }}"
+          imagePullPolicy: {{ .Values.aiAdvisor.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.aiAdvisor.port }}
+          envFrom:
+            - secretRef:
+                name: crm-ai-advisor-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiAdvisor.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiAdvisor.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+{{- end }}

@@ -1,0 +1,17 @@
+{{- if .Values.aiAdvisor.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: crm-ai-advisor
+  labels:
+    {{- include "crm.labels" . | nindent 4 }}
+    app: crm-ai-advisor
+spec:
+  type: ClusterIP
+  selector:
+    app: crm-ai-advisor
+  ports:
+    - name: http
+      port: {{ .Values.aiAdvisor.port }}
+      targetPort: {{ .Values.aiAdvisor.port }}
+{{- end }}
