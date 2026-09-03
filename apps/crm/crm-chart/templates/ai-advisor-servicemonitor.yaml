@@ -1,0 +1,18 @@
+{{- if .Values.aiAdvisor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: crm-ai-advisor
+  namespace: default
+  labels:
+    {{- include "crm.labels" . | nindent 4 }}
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: crm-ai-advisor
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+{{- end }}

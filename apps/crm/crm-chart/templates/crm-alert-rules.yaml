@@ -217,3 +217,81 @@ spec:
           annotations:
             summary: "CRM pod restarting frequently"
             description: "A CRM pod has restarted more than 3 times during the last 15 minutes."
+
+    # ==========================================
+    # AI ADVISOR ALERTS
+    # ==========================================
+    - name: crm.ai-advisor
+      rules:
+
+        - alert: CRMAIAdvisorDown
+          expr: up{job="crm-ai-advisor"} == 0
+          for: 1m
+          labels:
+            app: crm
+            severity: critical
+            component: ai-advisor
+          annotations:
+            summary: "CRM AI Advisor is down"
+            description: "Prometheus cannot scrape the CRM AI Advisor for more than 1 minute."
+
+        - alert: CRMAIAdvisorHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_requests_total{
+                job="crm-ai-advisor",
+                status=~"5.."
+              }[5m]))
+            /
+              sum(rate(http_requests_total{
+                job="crm-ai-advisor"
+              }[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            app: crm
+            severity: critical
+            component: ai-advisor
+          annotations:
+            summary: "High CRM AI Advisor 5xx error rate"
+            description: "More than 5% of AI Advisor requests are returning 5xx errors (possibly Gemini API failures)."
+
+        - alert: CRMAIAdvisorHighLatency
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(
+                rate(http_request_duration_seconds_bucket{
+                  job="crm-ai-advisor"
+                }[5m])
+              ) by (le)
+            ) > 30
+          for: 5m
+          labels:
+            app: crm
+            severity: warning
+            component: ai-advisor
+          annotations:
+            summary: "High CRM AI Advisor response latency"
+            description: "AI Advisor p95 latency is above 30 seconds — Gemini API may be slow."
+
+        - alert: CRMAIAdvisorPodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="default",
+              deployment="crm-ai-advisor"
+            }
+            <
+            kube_deployment_spec_replicas{
+              namespace="default",
+              deployment="crm-ai-advisor"
+            }
+          for: 5m
+          labels:
+            app: crm
+            severity: warning
+            component: kubernetes
+          annotations:
+            summary: "CRM AI Advisor replicas unavailable"
+            description: "Not all expected CRM AI Advisor replicas are available."
+

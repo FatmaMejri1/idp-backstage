@@ -5,6 +5,7 @@ from fastapi import FastAPI, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from prometheus_fastapi_instrumentator import Instrumentator
 
 logger = logging.getLogger("crm-ai-advisor")
 
@@ -19,6 +20,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# -- Prometheus metrics exposed at /metrics ---------------------------------
+Instrumentator().instrument(app).expose(app)
 
 AI_API_KEY = os.environ.get("AI_API_KEY", "")
 AI_API_BASE_URL = os.environ.get("AI_API_BASE_URL", "https://api.openai.com/v1")
