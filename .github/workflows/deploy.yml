@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       serviceName:
-        description: 'Service to deploy (crm-backend or crm-frontend)'
+        description: 'Service to deploy (crm-backend, crm-frontend, or crm-ai-advisor)'
         required: true
         default: 'crm-backend'
         type: choice
         options:
           - crm-backend
           - crm-frontend
+          - crm-ai-advisor
       imageTag:
         description: 'Image tag to deploy (Git SHA from CI, or latest)'
         required: true

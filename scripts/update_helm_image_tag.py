@@ -4,7 +4,7 @@
 Usage:
   python3 scripts/update_helm_image_tag.py <values.yaml> <serviceName> <imageTag>
 
-serviceName: crm-backend | backend | crm-frontend | frontend
+serviceName: crm-backend | backend | crm-frontend | frontend | crm-ai-advisor | ai-advisor
 """
 
 from __future__ import annotations
@@ -19,6 +19,9 @@ SERVICE_ALIASES = {
     "backend": "backend",
     "crm-frontend": "frontend",
     "frontend": "frontend",
+    "crm-ai-advisor": "aiAdvisor",
+    "aiAdvisor": "aiAdvisor",
+    "ai-advisor": "aiAdvisor",
 }
 
 TAG_PATTERN_TEMPLATE = (
