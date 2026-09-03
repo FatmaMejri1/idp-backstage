@@ -20,7 +20,7 @@ jobs:
   # ============================================================
 
   secret-scan:
-    name: 🔐 Secret Scan — Gitleaks
+    name: Secret Scan — Gitleaks
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +40,7 @@ jobs:
   # ============================================================
 
   sast-scan:
-    name: 🛡️ SAST — Semgrep
+    name:  SAST — Semgrep
     runs-on: ubuntu-latest
 
     steps:
@@ -68,7 +68,7 @@ jobs:
   # ============================================================
 
   test:
-    name: 🧪 Build & Test — Angular 21
+    name:  Build & Test — Angular 21
     runs-on: ubuntu-latest
 
     steps:
@@ -100,7 +100,7 @@ jobs:
   # ============================================================
 
   build-scan:
-    name: 🐳 Build & 🔍 Trivy Scan
+    name:  Build & Trivy Scan
     runs-on: ubuntu-latest
 
     needs:
@@ -139,7 +139,7 @@ jobs:
   # ============================================================
 
   publish:
-    name: 📦 Publish Image → GHCR
+    name: Publish Image → GHCR
     runs-on: ubuntu-latest
 
     needs:

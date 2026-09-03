@@ -14,32 +14,63 @@ permissions:
   contents: read
 
 jobs:
+
+  # ============================================================
+  # 1. SECURITY — SECRET SCANNING
+  # ============================================================
+
   secret-scan:
-    name: Secret Scan (Gitleaks)
+    name: Secret Scan — Gitleaks
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Gitleaks
+
+      - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+  # ============================================================
+  # 2. SECURITY — SAST
+  # ============================================================
+
   sast-scan:
-    name: SAST Scan (Semgrep)
+    name: SAST — Semgrep
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Semgrep
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Semgrep
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install semgrep
+
+      - name: Run Semgrep security analysis
         working-directory: apps/crm/crm-backend
         run: |
-          python3 -m pip install semgrep
-          semgrep scan --config=p/security-audit --config=p/owasp-top-ten --config=p/java . --severity ERROR
+          semgrep scan \
+            --config=p/security-audit \
+            --config=p/owasp-top-ten \
+            --config=p/java \
+            --severity ERROR \
+            .
+
+
+  # ============================================================
+  # 3. QUALITY — BUILD & TEST
+  # ============================================================
 
   test:
-    name: Build & Test
+    name: Build & Test — Spring Boot 3
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:16-alpine
@@ -54,15 +85,19 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Run tests
+
+      - name: Run Maven tests
         working-directory: apps/crm/crm-backend
         run: mvn test -B
         env:
@@ -70,25 +105,38 @@ jobs:
           SPRING_DATASOURCE_USERNAME: crmuser
           SPRING_DATASOURCE_PASSWORD: crmpassword
 
-  build-scan-push:
-    name: Build, Scan & Push Image
+
+  # ============================================================
+  # 4. CONTAINER — BUILD & SECURITY SCAN
+  # ============================================================
+
+  build-scan:
+    name: Build & Trivy Scan
     runs-on: ubuntu-latest
-    needs: [test]
+
+    needs:
+      - secret-scan
+      - sast-scan
+      - test
+
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Build image (local only, not pushed yet)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: apps/crm/crm-backend
           push: false
           load: true
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Trivy scan (table, blocking)
+      - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -97,14 +145,33 @@ jobs:
           exit-code: '1'
 
 
-      - name: Log in to GHCR
+  # ============================================================
+  # 5. PUBLISH — GHCR
+  # ============================================================
+
+  publish:
+    name: Publish Image → GHCR
+    runs-on: ubuntu-latest
+
+    needs:
+      - build-scan
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image (only if scan passed)
+      - name: Push image
         uses: docker/build-push-action@v5
         with:
           context: apps/crm/crm-backend
