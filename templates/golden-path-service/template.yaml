@@ -37,8 +37,8 @@ spec:
     - id: create-pagerduty-service
       name: Provision PagerDuty On-Call Service (Automated Platform Policy)
       action: http:backstage:request
-      continueOnError: true
       input:
+        continueOnBadResponse: true
         method: POST
         path: /proxy/pagerduty/services
         headers:
@@ -78,20 +78,11 @@ spec:
         defaultBranch: main
         repoVisibility: private
 
-    - id: set-ghcr-secret
-      name: Inject GHCR Publishing Secret (Platform Policy)
-      action: github:repo:set-secret
-      continueOnError: true
-      input:
-        repoOwner: FatmaMejri1
-        repoName: ${{ parameters.name }}
-        secretName: GHCR_PAT
-
     - id: set-workflow-permissions
       name: Configure GitHub Actions Workflow Permissions (Automated Platform Policy)
       action: http:backstage:request
-      continueOnError: true
       input:
+        continueOnBadResponse: true
         method: PUT
         path: /proxy/github/api/repos/FatmaMejri1/${{ parameters.name }}/actions/permissions/workflow
         headers:

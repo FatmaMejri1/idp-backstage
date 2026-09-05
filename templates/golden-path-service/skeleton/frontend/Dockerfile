@@ -22,3 +22,5 @@ COPY --from=build /app/dist/${{ values.name | lower | replace(" ", "-") }}-front
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
+
+LABEL org.opencontainers.image.source="https://github.com/${{ values.githubOwner }}/${{ values.name }}"

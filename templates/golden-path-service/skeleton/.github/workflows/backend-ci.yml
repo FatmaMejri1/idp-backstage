@@ -143,11 +143,11 @@ jobs:
         run: |
           OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
           REPO="$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
-          IMAGE="ghcr.io/${OWNER}/${REPO}-backend"
+          IMAGE="ghcr.io/${OWNER}/${REPO}"
           TAG="${{ github.sha }}"
           echo "image_name=${IMAGE}" >> "$GITHUB_OUTPUT"
           echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "Target Image: ${IMAGE}:${TAG}"
+          echo "Target Image: ${IMAGE}:backend-${TAG}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -158,14 +158,14 @@ jobs:
           context: backend
           push: false
           load: true
-          tags: ${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.image_tag }}
+          tags: ${{ steps.meta.outputs.image_name }}:backend-${{ steps.meta.outputs.image_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Save OCI Image Archive for Trivy
         run: |
           mkdir -p /tmp/docker-image
-          docker save "${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.image_tag }}" -o /tmp/docker-image/backend-image.tar
+          docker save "${{ steps.meta.outputs.image_name }}:backend-${{ steps.meta.outputs.image_tag }}" -o /tmp/docker-image/backend-image.tar
 
       - name: Upload Container Image Artifact
         uses: actions/upload-artifact@v4
@@ -185,6 +185,9 @@ jobs:
       - container-build
 
     steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
       - name: Download Container Image Artifact
         uses: actions/download-artifact@v4
         with:
@@ -197,11 +200,12 @@ jobs:
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ needs.container-build.outputs.image_name }}:${{ needs.container-build.outputs.image_tag }}
+          image-ref: ${{ needs.container-build.outputs.image_name }}:backend-${{ needs.container-build.outputs.image_tag }}
           format: table
           severity: CRITICAL,HIGH
           exit-code: '1'
           ignore-unfixed: true
+          trivyignores: .trivyignore
 
   # =========================================================================
   # 6. RELEASE: Publish to GitHub Container Registry (GHCR)
@@ -230,8 +234,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Verified Image to GHCR
         uses: docker/build-push-action@v6
@@ -239,8 +243,8 @@ jobs:
           context: backend
           push: true
           tags: |
-            ${{ needs.container-build.outputs.image_name }}:latest
-            ${{ needs.container-build.outputs.image_name }}:${{ needs.container-build.outputs.image_tag }}
+            ${{ needs.container-build.outputs.image_name }}:backend-latest
+            ${{ needs.container-build.outputs.image_name }}:backend-${{ needs.container-build.outputs.image_tag }}
           cache-from: type=gha
 
   # =========================================================================

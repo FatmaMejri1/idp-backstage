@@ -17,8 +17,8 @@ backend:
   enabled: true
 
   image:
-    repository: ghcr.io/fatmamejri1/${{ values.name }}-backend
-    tag: latest
+    repository: ghcr.io/${{ values.githubOwner }}/${{ values.name }}
+    tag: backend-latest
     pullPolicy: Always
 
   port: 8081
@@ -39,8 +39,8 @@ frontend:
   enabled: true
 
   image:
-    repository: ghcr.io/fatmamejri1/${{ values.name }}-frontend
-    tag: latest
+    repository: ghcr.io/${{ values.githubOwner }}/${{ values.name }}
+    tag: frontend-latest
     pullPolicy: Always
 
   port: 80
