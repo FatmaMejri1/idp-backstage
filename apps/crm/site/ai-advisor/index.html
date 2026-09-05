@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../ai-advisor/">
+        <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../cicd/">
+        <link rel="next" href="../observability/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>Observability - CRM Platform</title>
+        <title>AI Advisor - CRM Platform</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#observability-monitoring" class="md-skip">
+        <a href="#crm-ai-advisor-microservice" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Observability
+              AI Advisor
             
           </span>
         </div>
@@ -205,33 +205,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../ai-advisor/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    AI Advisor
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -251,7 +224,7 @@
   <span class="md-ellipsis">
     
   
-    Observability
+    AI Advisor
   
 
     
@@ -269,7 +242,7 @@
   <span class="md-ellipsis">
     
   
-    Observability
+    AI Advisor
   
 
     
@@ -295,10 +268,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#monitoring-components" class="md-nav__link">
+  <a href="#architecture-responsibilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monitoring Components
+        Architecture &amp; Responsibilities
       
     </span>
   </a>
@@ -306,32 +279,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#servicemonitors" class="md-nav__link">
+  <a href="#api-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ServiceMonitors
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-health-probe-get-health-or-get-aihealth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Health Probe (GET /health or GET /ai/health)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#grafana-dashboards" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2-prometheus-metrics-get-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grafana Dashboards
+        2. Prometheus Metrics (GET /metrics)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#alerting-rules" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#3-commercial-advice-post-advise-opportunity-or-post-aiadvise-opportunity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alerting Rules
+        3. Commercial Advice (POST /advise-opportunity or POST /ai/advise-opportunity)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration &amp; Secrets
       
     </span>
   </a>
@@ -342,6 +343,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -454,10 +482,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#monitoring-components" class="md-nav__link">
+  <a href="#architecture-responsibilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Monitoring Components
+        Architecture &amp; Responsibilities
       
     </span>
   </a>
@@ -465,32 +493,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#servicemonitors" class="md-nav__link">
+  <a href="#api-endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ServiceMonitors
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-health-probe-get-health-or-get-aihealth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Health Probe (GET /health or GET /ai/health)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#grafana-dashboards" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2-prometheus-metrics-get-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grafana Dashboards
+        2. Prometheus Metrics (GET /metrics)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#alerting-rules" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#3-commercial-advice-post-advise-opportunity-or-post-aiadvise-opportunity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Alerting Rules
+        3. Commercial Advice (POST /advise-opportunity or POST /ai/advise-opportunity)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration &amp; Secrets
       
     </span>
   </a>
@@ -514,69 +570,84 @@
 
 
 
-<h1 id="observability-monitoring">Observability &amp; Monitoring<a class="headerlink" href="#observability-monitoring" title="Permanent link">&para;</a></h1>
-<p>The IDP observability stack is based on <strong>kube-prometheus-stack</strong>, <strong>Grafana</strong>, and <strong>Loki</strong>.</p>
-<h2 id="monitoring-components">Monitoring Components<a class="headerlink" href="#monitoring-components" title="Permanent link">&para;</a></h2>
+<h1 id="crm-ai-advisor-microservice">CRM AI Advisor Microservice<a class="headerlink" href="#crm-ai-advisor-microservice" title="Permanent link">&para;</a></h1>
+<p>The <strong>CRM AI Advisor</strong> (<code>crm-ai-advisor</code>) is a Python microservice built with <strong>FastAPI</strong> that provides automated sales recommendations for CRM deals using <strong>Google Gemini</strong>.</p>
+<h2 id="architecture-responsibilities">Architecture &amp; Responsibilities<a class="headerlink" href="#architecture-responsibilities" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Analyzes commercial opportunities (Client name, Deal amount in DT, Deal status, Notes).</li>
+<li>Crafts structured prompts sent to the Gemini API (<code>gemini-flash-lite-latest</code>).</li>
+<li>Parses and formats the response into a concise summary and recommended commercial action.</li>
+<li>Exposes Prometheus instrumentation at <code>/metrics</code> for real-time latency and error tracking.</li>
+</ul>
+<h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="1-health-probe-get-health-or-get-aihealth">1. Health Probe (<code>GET /health</code> or <code>GET /ai/health</code>)<a class="headerlink" href="#1-health-probe-get-health-or-get-aihealth" title="Permanent link">&para;</a></h3>
+<p>Returns service liveness status and verifies if the AI API key is configured.</p>
+<div class="language-json highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UP"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"ai_key_loaded"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="2-prometheus-metrics-get-metrics">2. Prometheus Metrics (<code>GET /metrics</code>)<a class="headerlink" href="#2-prometheus-metrics-get-metrics" title="Permanent link">&para;</a></h3>
+<p>Exposes standard Prometheus metrics instrumented via <code>prometheus-fastapi-instrumentator</code>.</p>
+<h3 id="3-commercial-advice-post-advise-opportunity-or-post-aiadvise-opportunity">3. Commercial Advice (<code>POST /advise-opportunity</code> or <code>POST /ai/advise-opportunity</code>)<a class="headerlink" href="#3-commercial-advice-post-advise-opportunity-or-post-aiadvise-opportunity" title="Permanent link">&para;</a></h3>
+<p><strong>Request Payload:</strong>
+<div class="language-json highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"client_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Société Tunisienne de Banque"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"montant"</span><span class="p">:</span><span class="w"> </span><span class="mf">45000.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"statut"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NEGOCIATION"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Le client hésite sur les conditions de paiement à 60 jours."</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Response Payload:</strong>
+<div class="language-json highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Négociation en cours avec STB pour 45 000 DT avec blocage sur les délais de paiement."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"recommendation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Proposer un échéancier en deux tranches (50% comptant, 50% à 60 jours) avec une remise de 2%."</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="configuration-secrets">Configuration &amp; Secrets<a class="headerlink" href="#configuration-secrets" title="Permanent link">&para;</a></h2>
+<p>The service is configured via environment variables injected from the Kubernetes secret <code>crm-ai-advisor-secret</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Component</th>
-<th>Port</th>
-<th>Host Access</th>
+<th>Variable</th>
 <th>Description</th>
+<th>Default</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Grafana</strong></td>
-<td>3000 / 80</td>
-<td><code>http://localhost:3300</code></td>
-<td>Metric visualization and alerting dashboards</td>
+<td><code>AI_API_KEY</code></td>
+<td>Google Gemini API Key</td>
+<td>Required</td>
 </tr>
 <tr>
-<td><strong>Prometheus</strong></td>
-<td>9090</td>
-<td><code>http://localhost:9090</code> (via port-forward)</td>
-<td>Time-series metrics collection and evaluation</td>
+<td><code>AI_API_BASE_URL</code></td>
+<td>OpenAI-compatible base URL</td>
+<td><code>https://generativelanguage.googleapis.com/v1beta/openai/</code></td>
 </tr>
 <tr>
-<td><strong>Alertmanager</strong></td>
-<td>9093</td>
-<td>Cluster-internal</td>
-<td>Alert routing to Discord and Backstage webhook</td>
+<td><code>AI_MODEL</code></td>
+<td>Gemini model name</td>
+<td><code>gemini-flash-lite-latest</code></td>
 </tr>
 <tr>
-<td><strong>Loki</strong></td>
-<td>3100</td>
-<td>Cluster-internal</td>
-<td>Centralized log aggregation</td>
+<td><code>PORT</code></td>
+<td>Listening port</td>
+<td><code>8001</code></td>
 </tr>
 </tbody>
 </table>
-<h2 id="servicemonitors">ServiceMonitors<a class="headerlink" href="#servicemonitors" title="Permanent link">&para;</a></h2>
-<p>All CRM services are automatically scraped by Prometheus via Kubernetes <code>ServiceMonitor</code> CRDs:</p>
-<ol>
-<li><code>crm-backend</code>: Scrapes <code>/actuator/prometheus</code> on port <code>http</code> (8080) every 15s.</li>
-<li><code>crm-frontend</code>: Scrapes <code>/metrics</code> on port <code>metrics</code> (9113) every 15s.</li>
-<li><code>crm-postgres</code>: Scrapes <code>/metrics</code> from <code>postgres_exporter</code> (9187) every 15s.</li>
-<li><code>crm-ai-advisor</code>: Scrapes <code>/metrics</code> from FastAPI instrumentator (8001) every 15s.</li>
-</ol>
-<h2 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h2>
-<p>ConfigMaps labeled <code>grafana_dashboard: "1"</code> in namespace <code>monitoring</code> are auto-imported into Grafana:</p>
-<ul>
-<li><strong>CRM — Backend</strong>: JVM memory, CPU, HTTP throughput, p95/p99 latency, error rates.</li>
-<li><strong>CRM — Frontend</strong>: Nginx active connections, requests per second, HTTP response codes.</li>
-<li><strong>CRM — PostgreSQL</strong>: Active database connections, cache hit ratio, transaction throughput.</li>
-<li><strong>CRM — AI Advisor</strong>: Overview stats, endpoint latency (p50/p95/p99), 5xx error tracking, advice rate.</li>
-</ul>
-<h2 id="alerting-rules">Alerting Rules<a class="headerlink" href="#alerting-rules" title="Permanent link">&para;</a></h2>
-<p>Prometheus alert rules are configured in <code>crm-alert-rules</code>:</p>
-<ul>
-<li><strong>Down Alerts</strong>: <code>CRMFrontendDown</code>, <code>CRMBackendDown</code>, <code>CRMPostgreSQLDown</code>, <code>CRMAIAdvisorDown</code></li>
-<li><strong>Performance Alerts</strong>: <code>CRMBackendHighLatency</code> (&gt;1s), <code>CRMAIAdvisorHighLatency</code> (&gt;30s)</li>
-<li><strong>Error Alerts</strong>: <code>CRMBackendHigh5xxRate</code> (&gt;5%), <code>CRMAIAdvisorHigh5xxRate</code> (&gt;5%)</li>
-<li><strong>Kubernetes Alerts</strong>: <code>CRMPodRestarting</code>, <code>CRMFrontendPodNotReady</code>, <code>CRMBackendPodNotReady</code>, <code>CRMAIAdvisorPodNotReady</code></li>
-</ul>
 
 
 
@@ -606,7 +677,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../ai-advisor/" class="md-footer__link md-footer__link--prev" aria-label="Previous: AI Advisor">
+          <a href="../architecture/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Architecture">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -616,20 +687,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                AI Advisor
+                Architecture
               </div>
             </div>
           </a>
         
         
           
-          <a href="../cicd/" class="md-footer__link md-footer__link--next" aria-label="Next: CI/CD Pipelines">
+          <a href="../observability/" class="md-footer__link md-footer__link--next" aria-label="Next: Observability">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                CI/CD Pipelines
+                Observability
               </div>
             </div>
             <div class="md-footer__button md-icon">

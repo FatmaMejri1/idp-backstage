@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../cicd/">
+        <link rel="prev" href="../deployment/">
       
       
       
@@ -21,7 +21,7 @@
     
     
       
-        <title>Runbook - CRM Platform</title>
+        <title>Operations Runbook - CRM Platform</title>
       
     
     
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#runbook" class="md-skip">
+        <a href="#platform-operations-runbook" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Runbook
+              Operations Runbook
             
           </span>
         </div>
@@ -179,14 +179,41 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Deployment
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-advisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Advisor
   
 
     
@@ -240,7 +267,34 @@
   <span class="md-ellipsis">
     
   
-    CI/CD
+    CI/CD Pipelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & GitOps
   
 
     
@@ -276,7 +330,7 @@
   <span class="md-ellipsis">
     
   
-    Runbook
+    Operations Runbook
   
 
     
@@ -294,7 +348,7 @@
   <span class="md-ellipsis">
     
   
-    Runbook
+    Operations Runbook
   
 
     
@@ -320,35 +374,74 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#crmbackenddown-fires" class="md-nav__link">
+  <a href="#daily-operations-useful-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CRMBackendDown fires
+        Daily Operations &amp; Useful Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Daily Operations &amp; Useful Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-microservice-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check Microservice Status
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#crmpostgresqlhighconnections-fires" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#inspect-ingress-routes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CRMPostgreSQLHighConnections fires
+        Inspect Ingress &amp; Routes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#backend-restarting-frequently-crmpodrestarting" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#check-logs-with-kubectl-or-loki" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backend restarting frequently (CRMPodRestarting)
+        Check Logs with kubectl or Loki
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#force-argocd-manual-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Force ArgoCD Manual Sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-a-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart a Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -387,35 +480,74 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#crmbackenddown-fires" class="md-nav__link">
+  <a href="#daily-operations-useful-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CRMBackendDown fires
+        Daily Operations &amp; Useful Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Daily Operations &amp; Useful Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-microservice-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check Microservice Status
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#crmpostgresqlhighconnections-fires" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#inspect-ingress-routes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CRMPostgreSQLHighConnections fires
+        Inspect Ingress &amp; Routes
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#backend-restarting-frequently-crmpodrestarting" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#check-logs-with-kubectl-or-loki" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backend restarting frequently (CRMPodRestarting)
+        Check Logs with kubectl or Loki
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#force-argocd-manual-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Force ArgoCD Manual Sync
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#restart-a-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart a Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -436,22 +568,37 @@
 
 
 
-<h1 id="runbook">Runbook<a class="headerlink" href="#runbook" title="Permanent link">&para;</a></h1>
-<h2 id="crmbackenddown-fires">CRMBackendDown fires<a class="headerlink" href="#crmbackenddown-fires" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Check pod status: <code>kubectl get pods -n default -l app=crm-backend</code></li>
-<li>Check logs: <code>kubectl logs -n default deploy/crm-backend --tail 50</code></li>
-<li>Check recent deployments: <code>kubectl rollout history deployment/crm-backend -n default</code></li>
-</ol>
-<h2 id="crmpostgresqlhighconnections-fires">CRMPostgreSQLHighConnections fires<a class="headerlink" href="#crmpostgresqlhighconnections-fires" title="Permanent link">&para;</a></h2>
-<p>Check active connections and slow queries:
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>deploy/crm-backend<span class="w"> </span>--<span class="w"> </span><span class="nb">true</span><span class="w">  </span><span class="c1"># confirm backend reachable</span>
+<h1 id="platform-operations-runbook">Platform Operations Runbook<a class="headerlink" href="#platform-operations-runbook" title="Permanent link">&para;</a></h1>
+<h2 id="daily-operations-useful-commands">Daily Operations &amp; Useful Commands<a class="headerlink" href="#daily-operations-useful-commands" title="Permanent link">&para;</a></h2>
+<h3 id="check-microservice-status">Check Microservice Status<a class="headerlink" href="#check-microservice-status" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>crm
+kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>-l<span class="w"> </span>app.kubernetes.io/name<span class="o">=</span>crm
 </code></pre></div></td></tr></table></div>
-Review <code>hikaricp_connections_active</code> in the CRM Backend Grafana dashboard.</p>
-<h2 id="backend-restarting-frequently-crmpodrestarting">Backend restarting frequently (CRMPodRestarting)<a class="headerlink" href="#backend-restarting-frequently-crmpodrestarting" title="Permanent link">&para;</a></h2>
-<p>Check for OOMKilled or crash loops:
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>crm-backend<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A5<span class="w"> </span><span class="s2">"Last State"</span>
-</code></pre></div></td></tr></table></div></p>
+<h3 id="inspect-ingress-routes">Inspect Ingress &amp; Routes<a class="headerlink" href="#inspect-ingress-routes" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-n<span class="w"> </span>default
+curl<span class="w"> </span>-i<span class="w"> </span>http://crm.local/ai/health
+</code></pre></div></td></tr></table></div>
+<h3 id="check-logs-with-kubectl-or-loki">Check Logs with kubectl or Loki<a class="headerlink" href="#check-logs-with-kubectl-or-loki" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># AI Advisor logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>crm-ai-advisor<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span><span class="w"> </span>-f
+
+<span class="c1"># Backend logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>default<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>crm-backend<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span><span class="w"> </span>-f
+</code></pre></div></td></tr></table></div>
+<h3 id="force-argocd-manual-sync">Force ArgoCD Manual Sync<a class="headerlink" href="#force-argocd-manual-sync" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>application<span class="w"> </span>crm-app<span class="w"> </span>-n<span class="w"> </span>argocd<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></td></tr></table></div>
+<h3 id="restart-a-service">Restart a Service<a class="headerlink" href="#restart-a-service" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment<span class="w"> </span>crm-ai-advisor<span class="w"> </span>-n<span class="w"> </span>default
+kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deployment<span class="w"> </span>crm-ai-advisor<span class="w"> </span>-n<span class="w"> </span>default
+</code></pre></div></td></tr></table></div>
 
 
 
@@ -481,7 +628,7 @@ Review <code>hikaricp_connections_active</code> in the CRM Backend Grafana dashb
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cicd/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CI/CD">
+          <a href="../deployment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Deployment &amp; GitOps">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -491,7 +638,7 @@ Review <code>hikaricp_connections_active</code> in the CRM Backend Grafana dashb
                 Previous
               </span>
               <div class="md-ellipsis">
-                CI/CD
+                Deployment & GitOps
               </div>
             </div>
           </a>

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="next" href="deployment/">
+        <link rel="next" href="architecture/">
       
       
         
@@ -212,10 +212,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#core-microservices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture
+        Core Microservices
       
     </span>
   </a>
@@ -223,10 +223,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-links" class="md-nav__link">
+  <a href="#documentation-sections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick links
+        Documentation Sections
       
     </span>
   </a>
@@ -248,14 +248,41 @@
   
   
     <li class="md-nav__item">
-      <a href="deployment/" class="md-nav__link">
+      <a href="architecture/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Deployment
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ai-advisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Advisor
   
 
     
@@ -309,7 +336,34 @@
   <span class="md-ellipsis">
     
   
-    CI/CD
+    CI/CD Pipelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & GitOps
   
 
     
@@ -336,7 +390,7 @@
   <span class="md-ellipsis">
     
   
-    Runbook
+    Operations Runbook
   
 
     
@@ -376,10 +430,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#architecture" class="md-nav__link">
+  <a href="#core-microservices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture
+        Core Microservices
       
     </span>
   </a>
@@ -387,10 +441,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-links" class="md-nav__link">
+  <a href="#documentation-sections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick links
+        Documentation Sections
       
     </span>
   </a>
@@ -415,19 +469,72 @@
 
 
 <h1 id="crm-platform">CRM Platform<a class="headerlink" href="#crm-platform" title="Permanent link">&para;</a></h1>
-<p>The CRM is a full-stack demo application (Angular frontend, Spring Boot backend, PostgreSQL database) used as the "golden path" reference implementation for this Internal Developer Platform.</p>
-<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>Welcome to the <strong>CRM Platform</strong> documentation on the Internal Developer Platform (IDP).</p>
+<p>The CRM platform is a cloud-native, microservices-based application serving as the primary reference implementation for platform engineering, GitOps delivery, automated CI/CD security scanning, and AI-assisted workflows.</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code>graph TD
+    Client([Browser / Client]) --&gt; Ingress[Nginx Ingress Controller]
+    Ingress --&gt;|crm.local/| Frontend[CRM Frontend - Angular 21]
+    Ingress --&gt;|crm.local/api/*| Backend[CRM Backend - Spring Boot 3]
+    Ingress --&gt;|crm.local/ai/*| AIAdvisor[CRM AI Advisor - FastAPI :8001]
+    Backend --&gt; DB[(PostgreSQL Database)]
+    AIAdvisor --&gt; Gemini[Google Gemini AI API]
+</code></pre></div></td></tr></table></div>
+<h2 id="core-microservices">Core Microservices<a class="headerlink" href="#core-microservices" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Technology</th>
+<th>Port</th>
+<th>Ingress Route</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>crm-frontend</strong></td>
+<td>Angular 21, Nginx, Tailwind</td>
+<td>80</td>
+<td><code>crm.local/</code></td>
+<td>Commercial CRM user interface</td>
+</tr>
+<tr>
+<td><strong>crm-backend</strong></td>
+<td>Spring Boot 3.4, Java 17, Maven</td>
+<td>8080</td>
+<td><code>crm.local/api/*</code></td>
+<td>Business logic, client &amp; deal management</td>
+</tr>
+<tr>
+<td><strong>crm-postgres</strong></td>
+<td>PostgreSQL 16 + exporter</td>
+<td>5432</td>
+<td>Internal</td>
+<td>Persistent relational data store</td>
+</tr>
+<tr>
+<td><strong>crm-ai-advisor</strong></td>
+<td>FastAPI, Python 3.12, Uvicorn</td>
+<td>8001</td>
+<td><code>crm.local/ai/*</code></td>
+<td>AI-powered sales advice powered by Gemini</td>
+</tr>
+</tbody>
+</table>
+<h2 id="documentation-sections">Documentation Sections<a class="headerlink" href="#documentation-sections" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Frontend</strong>: Angular, served via nginx, reverse-proxies <code>/api/*</code> to the backend</li>
-<li><strong>Backend</strong>: Spring Boot, exposes REST endpoints and Prometheus metrics via Actuator</li>
-<li><strong>Database</strong>: PostgreSQL, instrumented with <code>postgres_exporter</code></li>
-</ul>
-<h2 id="quick-links">Quick links<a class="headerlink" href="#quick-links" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="deployment/">Deployment</a></li>
-<li><a href="observability/">Observability</a></li>
-<li><a href="cicd/">CI/CD Pipeline</a></li>
-<li><a href="runbook/">Runbook</a></li>
+<li><a href="architecture/">Architecture</a> — System topology, networking, and request lifecycles</li>
+<li><a href="ai-advisor/">AI Advisor</a> — Gemini AI microservice design, prompt engineering, and API</li>
+<li><a href="deployment/">Deployment</a> — Kubernetes manifests, Helm charts, and ArgoCD GitOps</li>
+<li><a href="observability/">Observability</a> — Prometheus scraping, Grafana dashboards, Loki logs, and alerts</li>
+<li><a href="cicd/">CI/CD Pipeline</a> — 5-stage DevSecOps pipeline in GitHub Actions</li>
+<li><a href="runbook/">Runbook</a> — Operations, troubleshooting, and incident response</li>
 </ul>
 
 
@@ -459,13 +566,13 @@
         
         
           
-          <a href="deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment">
+          <a href="architecture/" class="md-footer__link md-footer__link--next" aria-label="Next: Architecture">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Deployment
+                Architecture
               </div>
             </div>
             <div class="md-footer__button md-icon">

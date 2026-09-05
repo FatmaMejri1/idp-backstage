@@ -12,7 +12,7 @@
         <link rel="prev" href="../observability/">
       
       
-        <link rel="next" href="../runbook/">
+        <link rel="next" href="../deployment/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>CI/CD - CRM Platform</title>
+        <title>CI/CD Pipelines - CRM Platform</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#cicd-pipeline" class="md-skip">
+        <a href="#cicd-devsecops-pipelines" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CI/CD
+              CI/CD Pipelines
             
           </span>
         </div>
@@ -181,14 +181,41 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Deployment
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-advisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Advisor
   
 
     
@@ -244,6 +271,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI/CD Pipelines
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -251,7 +296,7 @@
   <span class="md-ellipsis">
     
   
-    CI/CD
+    CI/CD Pipelines
   
 
     
@@ -261,6 +306,63 @@
 
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment & GitOps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -279,7 +381,7 @@
   <span class="md-ellipsis">
     
   
-    Runbook
+    Operations Runbook
   
 
     
@@ -312,6 +414,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Stages
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -327,15 +448,49 @@
 
 
 
-<h1 id="cicd-pipeline">CI/CD Pipeline<a class="headerlink" href="#cicd-pipeline" title="Permanent link">&para;</a></h1>
-<p>Each of <code>crm-backend</code> and <code>crm-frontend</code> has its own GitHub Actions workflow with 4 stages:</p>
+<h1 id="cicd-devsecops-pipelines">CI/CD DevSecOps Pipelines<a class="headerlink" href="#cicd-devsecops-pipelines" title="Permanent link">&para;</a></h1>
+<p>All microservices are validated and built using automated <strong>GitHub Actions</strong> workflows with identical 5-stage DevSecOps standards.</p>
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div><pre><span></span><code>GitHub Push
+   │
+   ├── 1. SECURITY — SECRET SCANNING (Gitleaks)
+   │
+   ├── 2. SECURITY — SAST (Semgrep)
+   │
+   ├── 3. QUALITY — BUILD &amp; TEST (Maven / Angular / PyTest)
+   │
+   ├── 4. CONTAINER — BUILD &amp; SECURITY SCAN (Trivy)
+   │
+   └── 5. PUBLISH — GHCR (Push image to ghcr.io)
+             │
+             ▼
+        ArgoCD GitOps Sync to Kubernetes
+</code></pre></div></td></tr></table></div>
+<h2 id="pipeline-stages">Pipeline Stages<a class="headerlink" href="#pipeline-stages" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Secret scan</strong> (Gitleaks) — blocking</li>
-<li><strong>SAST</strong> (Semgrep) — blocking</li>
-<li><strong>Test</strong> — unit tests, Postgres service container for backend</li>
-<li><strong>Build, Scan &amp; Push</strong> — Docker build → Trivy scan (blocking on CRITICAL/HIGH) → push to GHCR only if the scan passes</li>
+<li><strong>Secret Scanning (Gitleaks)</strong>: Scans every commit for leaked credentials, API tokens, and private keys. SARIF report uploaded to GitHub Security tab.</li>
+<li><strong>SAST Analysis (Semgrep)</strong>: Static application security testing for OWASP Top 10 vulnerabilities.</li>
+<li><strong>Build &amp; Automated Testing</strong>:<ul>
+<li>Backend: Maven test execution against a live PostgreSQL 16 container service.</li>
+<li>Frontend: Headless Chrome unit testing via Karma / Angular CLI.</li>
+<li>AI Advisor: Python dependency and compilation validation.</li>
+</ul>
+</li>
+<li><strong>Container Build &amp; Trivy Scan</strong>: Builds local image and executes vulnerability scanning. CRITICAL CVEs fail the pipeline.</li>
+<li><strong>Publish to GHCR</strong>: Authenticates to GitHub Container Registry and publishes verified image tags (<code>sha-&lt;commit&gt;</code> and <code>latest</code>).</li>
 </ol>
-<p>Images: <code>ghcr.io/fatmamejri1/crm-backend</code>, <code>ghcr.io/fatmamejri1/crm-frontend</code>, tagged <code>:latest</code> and <code>:&lt;commit-sha&gt;</code>.</p>
 
 
 
@@ -382,13 +537,13 @@
         
         
           
-          <a href="../runbook/" class="md-footer__link md-footer__link--next" aria-label="Next: Runbook">
+          <a href="../deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment &amp; GitOps">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Runbook
+                Deployment & GitOps
               </div>
             </div>
             <div class="md-footer__button md-icon">

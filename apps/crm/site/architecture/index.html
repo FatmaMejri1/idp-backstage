@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../cicd/">
+        <link rel="prev" href="..">
       
       
-        <link rel="next" href="../runbook/">
+        <link rel="next" href="../ai-advisor/">
       
       
         
@@ -23,7 +23,7 @@
     
     
       
-        <title>Deployment & GitOps - CRM Platform</title>
+        <title>Architecture - CRM Platform</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deployment-gitops" class="md-skip">
+        <a href="#system-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Deployment & GitOps
+              Architecture
             
           </span>
         </div>
@@ -178,10 +178,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -197,6 +224,37 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#network-paths-ingress-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Paths &amp; Ingress Rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -286,37 +344,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deployment & GitOps
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
         
   
   
@@ -332,48 +363,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#gitops-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GitOps Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#helm-chart-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Helm Chart Structure
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -432,21 +421,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#gitops-principles" class="md-nav__link">
+  <a href="#network-paths-ingress-rules" class="md-nav__link">
     <span class="md-ellipsis">
       
-        GitOps Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#helm-chart-structure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Helm Chart Structure
+        Network Paths &amp; Ingress Rules
       
     </span>
   </a>
@@ -470,15 +448,8 @@
 
 
 
-<h1 id="deployment-gitops">Deployment &amp; GitOps<a class="headerlink" href="#deployment-gitops" title="Permanent link">&para;</a></h1>
-<p>The platform utilizes declarative <strong>GitOps</strong> powered by <strong>ArgoCD</strong>.</p>
-<h2 id="gitops-principles">GitOps Principles<a class="headerlink" href="#gitops-principles" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Single Source of Truth</strong>: Helm chart located in <code>apps/crm/crm-chart/</code> defines all desired Kubernetes states.</li>
-<li><strong>Automated Reconciliation</strong>: ArgoCD continuously compares cluster state against <code>main</code> branch.</li>
-<li><strong>Self-Healing</strong>: Manual changes made directly with <code>kubectl</code> are automatically reverted to match Git.</li>
-</ol>
-<h2 id="helm-chart-structure">Helm Chart Structure<a class="headerlink" href="#helm-chart-structure" title="Permanent link">&para;</a></h2>
+<h1 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h1>
+<p>The CRM platform runs in a local multi-node <strong>Kubernetes (Kind)</strong> cluster managed via <strong>ArgoCD GitOps</strong> and integrated into the <strong>Backstage Internal Developer Portal</strong>.</p>
 <div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
 <span class="normal"> 2</span>
 <span class="normal"> 3</span>
@@ -505,34 +476,66 @@
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
-<span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code>apps/crm/crm-chart/
-├── Chart.yaml
-├── values.yaml
-├── dashboards/
-│   ├── crm-backend-dashboard.json
-│   ├── crm-frontend-dashboard.json
-│   ├── crm-postgres-dashboard.json
-│   └── crm-ai-advisor-dashboard.json
-└── templates/
-    ├── backend-deployment.yaml
-    ├── backend-service.yaml
-    ├── backend-servicemonitor.yaml
-    ├── backend-grafana-dashboard.yaml
-    ├── frontend-deployment.yaml
-    ├── frontend-service.yaml
-    ├── frontend-servicemonitor.yaml
-    ├── frontend-grafana-dashboard.yaml
-    ├── ai-advisor-deployment.yaml
-    ├── ai-advisor-service.yaml
-    ├── ai-advisor-servicemonitor.yaml
-    ├── ai-advisor-grafana-dashboard.yaml
-    ├── postgres-deployment.yaml
-    ├── postgres-service.yaml
-    ├── postgres-servicemonitor.yaml
-    ├── postgres-grafana-dashboard.yaml
-    ├── ingress.yaml
-    └── crm-alert-rules.yaml
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code>flowchart TD
+    subgraph Development
+        Dev([Developer]) --&gt;|git push| Repo[(GitHub Repo: idp-backstage)]
+    end
+
+    subgraph CI ["GitHub Actions (CI/CD)"]
+        Repo --&gt; Gitleaks[1. Secret Scan: Gitleaks]
+        Gitleaks --&gt; SAST[2. SAST: Semgrep]
+        SAST --&gt; Test[3. Unit &amp; Integration Tests]
+        Test --&gt; Trivy[4. Container Build &amp; Trivy Scan]
+        Trivy --&gt; GHCR[5. Publish: GitHub Container Registry]
+    end
+
+    subgraph GitOps ["GitOps Reconciliation"]
+        Repo -.-&gt;|Watch Helm Chart| ArgoCD[ArgoCD Controller]
+        GHCR -.-&gt;|Deploy Image| ArgoCD
+        ArgoCD --&gt;|Sync State| K8s[Kind Kubernetes Cluster]
+    end
+
+    subgraph IngressLayer ["Ingress &amp; Routing"]
+        K8s --&gt; NginxIngress[Ingress Nginx Controller]
+    end
+
+    subgraph Services ["Application Pods"]
+        NginxIngress --&gt;|/| FrontendPod[crm-frontend:80]
+        NginxIngress --&gt;|/api| BackendPod[crm-backend:8080]
+        NginxIngress --&gt;|/ai| AIPod[crm-ai-advisor:8001]
+        BackendPod --&gt; PostgresPod[(crm-postgres:5432)]
+        AIPod --&gt; GeminiCloud[[Google Gemini AI API]]
+    end
+
+    subgraph Observability ["Observability Stack"]
+        Prometheus[Prometheus] --&gt;|Scrape /metrics| FrontendPod
+        Prometheus --&gt;|Scrape /actuator/prometheus| BackendPod
+        Prometheus --&gt;|Scrape /metrics| AIPod
+        Prometheus --&gt;|Scrape /metrics| PostgresPod
+        Prometheus --&gt; Grafana[Grafana Dashboards :30300]
+        Promtail[Promtail] --&gt; Loki[Loki Log Aggregator]
+    end
 </code></pre></div></td></tr></table></div>
+<h2 id="network-paths-ingress-rules">Network Paths &amp; Ingress Rules<a class="headerlink" href="#network-paths-ingress-rules" title="Permanent link">&para;</a></h2>
+<p>The cluster ingress is managed by <code>ingress-nginx</code> listening on host port 80:</p>
+<ul>
+<li><code>http://crm.local/</code> → Routes to <code>crm-frontend</code> Service (port 80)</li>
+<li><code>http://crm.local/api/*</code> → Routes to <code>crm-backend</code> Service (port 8080)</li>
+<li><code>http://crm.local/ai/*</code> → Routes to <code>crm-ai-advisor</code> Service (port 8001)</li>
+<li><code>http://crm.local/ai/docs</code> → FastAPI Swagger interactive documentation</li>
+</ul>
 
 
 
@@ -562,7 +565,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cicd/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CI/CD Pipelines">
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -572,20 +575,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                CI/CD Pipelines
+                Home
               </div>
             </div>
           </a>
         
         
           
-          <a href="../runbook/" class="md-footer__link md-footer__link--next" aria-label="Next: Operations Runbook">
+          <a href="../ai-advisor/" class="md-footer__link md-footer__link--next" aria-label="Next: AI Advisor">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Operations Runbook
+                AI Advisor
               </div>
             </div>
             <div class="md-footer__button md-icon">
