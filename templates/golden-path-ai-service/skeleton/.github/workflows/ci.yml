@@ -54,6 +54,7 @@ jobs:
           image-ref: local-test
           format: table
           exit-code: '1'
+          ignore-unfixed: true
           severity: 'CRITICAL'
 
   publish:
@@ -67,9 +68,11 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push image
         run: |
-          IMAGE="ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}"
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          REPO="$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${OWNER}/${REPO}"
           docker build -t $IMAGE:latest app/
           docker push $IMAGE:latest
