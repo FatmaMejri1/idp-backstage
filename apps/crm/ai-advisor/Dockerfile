@@ -4,4 +4,6 @@ COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ .
 EXPOSE 8001
+RUN useradd -m -u 1000 non-root && chown -R non-root:non-root /app
+USER non-root
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

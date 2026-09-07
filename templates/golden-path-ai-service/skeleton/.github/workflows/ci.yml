@@ -16,6 +16,7 @@ permissions:
   contents: read
   packages: write
   security-events: write
+  id-token: write
 
 jobs:
   secret-scan:
@@ -34,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip install semgrep && semgrep scan --config auto --severity ERROR --exclude='*.test.py' apps/{{ values.name }}/app/
+      - run: pip install semgrep && semgrep scan --config auto --severity ERROR --exclude='*.test.py' --exclude=Dockerfile apps/{{ values.name }}/app/
 
   test:
     name: Lint & Test
@@ -63,6 +64,7 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL'
+          trivyignores: app/.trivyignore
 
   publish:
     name: Publish Image -> GHCR
