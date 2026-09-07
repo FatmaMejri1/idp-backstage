@@ -246,6 +246,12 @@ catalog:
       rules:
         - allow: [Template]
 
+    # Golden Path Application template (Angular + Spring Boot + AI Service)
+    - type: file
+      target: ../../../templates/golden-path-application/template.yaml
+      rules:
+        - allow: [Template]
+
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml
