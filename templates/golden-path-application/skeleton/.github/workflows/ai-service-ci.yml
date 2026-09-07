@@ -70,7 +70,6 @@ jobs:
             --error \
             --metrics=off \
             --exclude='*.test.py' \
-            --exclude=Dockerfile \
             .
 
   # ===========================================================================
@@ -176,7 +175,6 @@ jobs:
           severity: CRITICAL,HIGH
           exit-code: '1'
           ignore-unfixed: true
-          trivyignores: ai-service/.trivyignore
 
   # ===========================================================================
   # 6. RELEASE: Publish to GHCR
