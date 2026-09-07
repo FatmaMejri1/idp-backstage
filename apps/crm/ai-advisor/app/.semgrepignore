@@ -1,0 +1,4 @@
+# Exclude test files and example code from strict security checks
+tests/
+examples/
+*.test.py

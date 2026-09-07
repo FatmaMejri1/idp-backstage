@@ -1,0 +1,246 @@
+name: AI Service CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ai-service/**'
+      - '.github/workflows/ai-service-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'ai-service/**'
+      - '.github/workflows/ai-service-ci.yml'
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ===========================================================================
+  # 1. SECURITY: Secret Scan (Gitleaks)
+  # ===========================================================================
+  secret-scan:
+    name: Secret Scan - Gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ===========================================================================
+  # 2. SECURITY: SAST (Semgrep)
+  # ===========================================================================
+  sast-scan:
+    name: SAST - Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python for SAST Engine
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Semgrep SAST Tool
+        run: python -m pip install --upgrade semgrep
+
+      - name: Run Semgrep SAST Rules (Python & Security Audit)
+        working-directory: ai-service
+        run: |
+          semgrep scan \
+            --config=p/security-audit \
+            --config=p/owasp-top-ten \
+            --config=p/python \
+            --severity ERROR \
+            --severity WARNING \
+            --error \
+            --metrics=off \
+            --exclude='*.test.py' \
+            .
+
+  # ===========================================================================
+  # 3. QUALITY: Lint & Test
+  # ===========================================================================
+  test:
+    name: Lint & Test (Python / FastAPI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        working-directory: ai-service
+        run: pip install -r requirements.txt
+
+      - name: Syntax Check
+        working-directory: ai-service
+        run: python3 -m py_compile main.py
+
+  # ===========================================================================
+  # 4. PACKAGE: Container Build & Artifact
+  # ===========================================================================
+  container-build:
+    name: Container Build (OCI Package)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [secret-scan, sast-scan, test]
+    outputs:
+      image_name: ${{ steps.meta.outputs.image_name }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Compute Normalized OCI Image Metadata
+        id: meta
+        shell: bash
+        run: |
+          OWNER="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          REPO="$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${OWNER}/${REPO}"
+          TAG="${{ github.sha }}"
+          echo "image_name=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Target Image: ${IMAGE}:ai-${TAG}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image (Local OCI Cache)
+        uses: docker/build-push-action@v6
+        with:
+          context: ai-service
+          push: false
+          load: true
+          tags: ${{ steps.meta.outputs.image_name }}:ai-${{ steps.meta.outputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save OCI Image Archive for Trivy
+        run: |
+          mkdir -p /tmp/docker-image
+          docker save "${{ steps.meta.outputs.image_name }}:ai-${{ steps.meta.outputs.image_tag }}" -o /tmp/docker-image/ai-image.tar
+
+      - name: Upload Container Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-container-image
+          path: /tmp/docker-image/ai-image.tar
+          retention-days: 1
+
+  # ===========================================================================
+  # 5. SECURITY: Container Vulnerability Scan (Trivy)
+  # ===========================================================================
+  container-scan:
+    name: Container Vulnerability Scan (Trivy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [container-build]
+    steps:
+      - name: Download Container Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-container-image
+          path: /tmp/docker-image
+
+      - name: Load Image into Docker Daemon
+        run: docker load -i /tmp/docker-image/ai-image.tar
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ needs.container-build.outputs.image_name }}:ai-${{ needs.container-build.outputs.image_tag }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+
+  # ===========================================================================
+  # 6. RELEASE: Publish to GHCR
+  # ===========================================================================
+  publish-image:
+    name: Publish OCI Image (GHCR)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [container-build, container-scan]
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Verified Image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: ai-service
+          push: true
+          tags: |
+            ${{ needs.container-build.outputs.image_name }}:ai-latest
+            ${{ needs.container-build.outputs.image_name }}:ai-${{ needs.container-build.outputs.image_tag }}
+          cache-from: type=gha
+
+  # ===========================================================================
+  # 7. OBSERVABILITY: Platform Engineering Summary
+  # ===========================================================================
+  pipeline-summary:
+    name: Platform Pipeline Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [secret-scan, sast-scan, test, container-build, container-scan, publish-image]
+    steps:
+      - name: Generate Workflow Summary
+        run: |
+          GHCR_STATUS="FAILED"
+          if [ "${{ needs.publish-image.result }}" = "success" ]; then
+            GHCR_STATUS="PUBLISHED"
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            GHCR_STATUS="SKIPPED (Pull Request)"
+          elif [ "${{ needs.publish-image.result }}" = "skipped" ]; then
+            GHCR_STATUS="SKIPPED"
+          fi
+
+          echo "## Golden Path AI Service Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Scan | ${{ needs.secret-scan.result == 'success' && 'PASSED' || 'FAILED' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST Scan | ${{ needs.sast-scan.result == 'success' && 'PASSED' || 'FAILED' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint & Test | ${{ needs.test.result == 'success' && 'PASSED' || 'FAILED' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container Build | ${{ needs.container-build.result == 'success' && 'PASSED' || (needs.container-build.result == 'skipped' && 'BLOCKED' || 'FAILED') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container Vulnerability Scan | ${{ needs.container-scan.result == 'success' && 'PASSED' || (needs.container-scan.result == 'skipped' && 'BLOCKED' || 'FAILED') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GHCR Publish | ${GHCR_STATUS} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\` on branch \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY

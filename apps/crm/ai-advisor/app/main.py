@@ -13,11 +13,13 @@ load_dotenv(".env", override=True)
 
 app = FastAPI(title="crm-ai-advisor")
 
+# Configure CORS with specific origins for security
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
