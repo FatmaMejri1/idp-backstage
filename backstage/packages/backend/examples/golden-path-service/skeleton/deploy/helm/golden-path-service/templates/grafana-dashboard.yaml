@@ -1,0 +1,114 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-grafana-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: {{ .Values.name }}
+data:
+  {{ .Values.name }}-dashboard.json: |
+    {
+      "title": "{{ .Values.name }}",
+      "uid": "{{ .Values.name }}-dashboard",
+      "tags": [
+        "{{ .Values.name }}"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": {
+        "from": "now-30m",
+        "to": "now"
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Backend Up",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 6,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "up{job=\"{{ .Values.name }}-backend\"}",
+              "legendFormat": "Backend"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "HTTP Request Rate",
+          "gridPos": {
+            "x": 0,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{job=\"{{ .Values.name }}-backend\"}[5m]))",
+              "legendFormat": "requests/sec"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "HTTP 5xx Errors",
+          "gridPos": {
+            "x": 12,
+            "y": 4,
+            "w": 12,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{job=\"{{ .Values.name }}-backend\",status=~\"5..\"}[5m]))",
+              "legendFormat": "5xx/sec"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "JVM Heap Memory",
+          "gridPos": {
+            "x": 0,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "sum(jvm_memory_used_bytes{job=\"{{ .Values.name }}-backend\",area=\"heap\"})",
+              "legendFormat": "heap used"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Backend Uptime",
+          "gridPos": {
+            "x": 12,
+            "y": 12,
+            "w": 12,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "process_uptime_seconds{job=\"{{ .Values.name }}-backend\"}",
+              "legendFormat": "uptime"
+            }
+          ]
+        }
+      ]
+    }
+{{- end }}

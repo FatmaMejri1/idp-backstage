@@ -1,0 +1,50 @@
+{{- if .Values.aiService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}-ai-service
+  namespace: default
+  labels:
+    {{- include "golden-path-application.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-ai-service
+spec:
+  replicas: {{ .Values.aiService.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}-ai-service
+  template:
+    metadata:
+      labels:
+        {{- include "golden-path-application.labels" . | nindent 8 }}
+        app: {{ .Values.name }}-ai-service
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: ai-service
+          image: "{{ .Values.aiService.image.repository }}:{{ .Values.aiService.image.tag }}"
+          imagePullPolicy: {{ .Values.aiService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.aiService.port }}
+          env:
+            - name: AI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.aiService.secretName }}
+                  key: AI_API_KEY
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiService.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.aiService.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.aiService.resources | nindent 12 }}
+{{- end }}

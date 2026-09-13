@@ -10,6 +10,7 @@ import {
 } from '@backstage/plugin-scaffolder-node';
 import { spawnSync } from 'child_process';
 import { alertmanagerWebhookPlugin } from './plugins/alertmanagerWebhook';
+import { pagerdutyMockPlugin } from './plugins/pagerdutyMock';
 
 // ============================================================
 // Platform Engineering Custom Action: github:repo:set-secret
@@ -142,6 +143,7 @@ backend.add(import('@backstage/plugin-user-settings-backend'));
 backend.add(import('@backstage/plugin-notifications-backend'));
 backend.add(import('@backstage/plugin-signals-backend'));
 backend.add(alertmanagerWebhookPlugin);
+backend.add(pagerdutyMockPlugin);
 
 // mcp actions plugin
 backend.add(import('@backstage/plugin-mcp-actions-backend'));

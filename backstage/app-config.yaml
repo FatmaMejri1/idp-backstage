@@ -1,6 +1,11 @@
 app:
   title: Scaffolded Backstage App
+  # Use localhost so Windows browsers reach WSL via localhost forwarding.
+  # Bind 0.0.0.0 so the dev server is reachable from Windows and the WSL IP.
   baseUrl: http://localhost:3000
+  listen:
+    host: 0.0.0.0
+    port: 3000
 
   # Enable all packages by default, this will discover packages from packages/app/package.json
   packages: all
@@ -13,8 +18,10 @@ app:
     - page:catalog:
         config:
           path: /
+
     # CRM alerts are PrometheusRules, not Grafana-managed unified alerts.
     - entity-card:grafana/alerts: false
+
     # - page:home:
     #     config:
     #       path: /
@@ -24,6 +31,7 @@ app:
     # Visit data is stored via UserSettings storage if available, otherwise browser localStorage.
     # - api:home/visits: true
     # - app-root-element:home/visit-listener: true
+
     - home-page-widget:home/toolkit:
         config:
           tools:
@@ -42,6 +50,7 @@ app:
             - url: https://github.com/backstage/backstage/issues/new/choose
               label: Submit New Issue
               icon: github
+
     - home-page-widget:home/world-clock:
         config:
           clockConfigs:
@@ -53,6 +62,7 @@ app:
               timeZone: Europe/Stockholm
             - label: TYO
               timeZone: Asia/Tokyo
+
     - page:home:
         config:
           defaultConfig:
@@ -62,36 +72,43 @@ app:
               width: 12
               height: 2
               deletable: false
+
             - component: GettingStarted
               column: 0
               row: 1
               width: 4
               height: 11
+
             - component: HomePageStarredEntities
               column: 4
               row: 2
               width: 4
               height: 4
+
             - component: HomePageRandomJoke
               column: 8
               row: 2
               width: 4
               height: 4
+
             - component: HomePageToolkit
               column: 4
               row: 6
               width: 4
               height: 3
+
             - component: HomePageWorldClock
               column: 8
               row: 6
               width: 4
               height: 3
+
             - component: HomePageMostVisited
               column: 4
               row: 9
               width: 4
               height: 4
+
             - component: HomePageRecentlyVisited
               column: 8
               row: 9
@@ -110,57 +127,73 @@ backend:
   # auth:
   #   keys:
   #     - secret: ${BACKEND_SECRET}
+
+  # Browser API calls use this URL. localhost works from Windows via WSL port
+  # forwarding; the process still binds 0.0.0.0 so Kind/Docker can reach :7008.
   baseUrl: http://localhost:7008
+
   listen:
     port: 7008
+
     # Kind Alertmanager reaches this webhook via host.docker.internal:7008
     host: 0.0.0.0
+
     # Uncomment the following host directive to bind to specific interfaces
     # host: 127.0.0.1
+
   csp:
     connect-src: ["'self'", 'http:', 'https:']
     # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
     # Default Helmet Content-Security-Policy values can be removed by setting the key to false
+
   cors:
-    origin: http://localhost:3000
+    origin:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
     methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
     credentials: true
+
   # This is for local development only, it is not recommended to use this in production
   # The production database configuration is stored in app-config.production.yaml
   # Persist locally so auth signing keys survive yarn restart (in-memory DB caused 401s)
   database:
     client: better-sqlite3
     connection:
-       directory: ./sqlite
+      directory: ./sqlite
+
   # see https://backstage.io/docs/ai/mcp-actions#actions-configuration for more details
   actions:
     pluginSources:
       - auth
       - catalog
       - scaffolder
+
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
 
 integrations:
   github:
     - host: github.com
-      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
-      # about setting up the GitHub integration here: https://backstage.io/docs/integrations/github/locations#configuration
-      token: ${GITHUB_TOKEN}
-    ### Example for how to add your GitHub Enterprise instance using the API:
-    # - host: ghe.example.net
-    #   apiBaseUrl: https://ghe.example.net/api/v3
-    #   token: ${GHE_TOKEN}
+      # Token is set in app-config.local.yaml via GITHUB_TOKEN env var.
+      # This entry is required for catalog:register to resolve GitHub repoContentsUrl
+      # after scaffolding. No schedule = no auto-discovery of external repos.
+      token: ${GITHUB_TOKEN:}
+
+      ### Example for how to add your GitHub Enterprise instance using the API:
+      # - host: ghe.example.net
+      #   apiBaseUrl: https://ghe.example.net/api/v3
+      #   token: ${GHE_TOKEN}
 
 proxy:
   endpoints:
     # Used by @backstage/plugin-pagerduty (calls /api/proxy/pagerduty/*)
     '/pagerduty':
-      target: 'https://api.pagerduty.com'
+      target: 'http://127.0.0.1:7008/api/pagerduty-mock'
       changeOrigin: true
-      headers:
-        Authorization: 'Token token=${PAGERDUTY_TOKEN:}'
-        Accept: 'application/vnd.pagerduty+json;version=2'
-    # GitHub Actions plugin (guest login cannot use OAuth /api/auth/github/start)
+      credentials: dangerously-allow-unauthenticated
+      pathRewrite:
+        '^/api/proxy/pagerduty': ''
+        '^/pagerduty': ''
+
     '/github/api':
       target: 'https://api.github.com'
       changeOrigin: true
@@ -183,11 +216,11 @@ proxy:
 # and an external cloud storage when deploying TechDocs for production use-case.
 # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
 techdocs:
-  builder: 'local' # Alternatives - 'external'
+  builder: 'local'
   generator:
-    runIn: 'local' # Alternatives - 'local'
+    runIn: 'local'
   publisher:
-    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+    type: 'local'
 
 auth:
   # see https://backstage.io/docs/auth/ to learn about auth providers
@@ -197,14 +230,18 @@ auth:
       userEntityRef: user:default/guest
       ownershipEntityRefs:
         - group:default/guests
+      dangerouslyAllowSignInWithoutUserInCatalog: true
+
   # see https://backstage.io/docs/ai/mcp-actions#client-id-metadata-documents
   # to learn more about client id metadata documents
   clientIdMetadataDocuments:
     enabled: false
-    # Optional: restrict which `client_id` URLs are allowed (defaults to ['*'])
+
+    # Optional: restrict which client_id URLs are allowed (defaults to ['*'])
     # allowedClientIdPatterns:
     #   - 'https://example.com/*'
     #   - 'https://*.trusted-domain.com/*'
+
     # Optional: restrict which redirect URIs are allowed (defaults to ['*'])
     # allowedRedirectUriPatterns:
     #   - 'http://localhost:*'
@@ -217,82 +254,49 @@ catalog:
   import:
     entityFilename: catalog-info.yaml
     pullRequestBranchName: backstage-integration
-  rules:
-    - allow: [Component, System, API, Resource, Location]
-  locations:
-    # Local example data, file locations are relative to the backend process, typically `packages/backend`
-    - type: file
-      target: ../../examples/entities.yaml
 
-    # CRM Component (path is relative to packages/backend)
+  rules:
+    - allow: [Component, System, API, Resource, Location, Template, User, Group]
+
+  locations:
+    # CRM Component
     - type: file
       target: ../../../apps/crm/catalog-info.yaml
 
-    # Local example template
+    # File locations are resolved from packages/backend, not the repo root.
     - type: file
-      target: ../../examples/template/template.yaml
-      rules:
-        - allow: [Template]
+      target: ./examples/org.yaml
 
-    # Golden Path Service template
     - type: file
-      target: ../../../templates/golden-path-service/template.yaml
-      rules:
-        - allow: [Template]
+      target: ./examples/template/template.yaml
 
-    # Golden Path AI Service template (FastAPI + Gemini)
     - type: file
-      target: ../../../templates/golden-path-ai-service/template.yaml
-      rules:
-        - allow: [Template]
-
-    # Golden Path Application template (Angular + Spring Boot + AI Service)
+      target: ./examples/golden-path-application/template.yaml
     - type: file
-      target: ../../../templates/golden-path-application/template.yaml
-      rules:
-        - allow: [Template]
-
-    # Local example organizational data
+      target: ./examples/golden-path-service/template.yaml
     - type: file
-      target: ../../examples/org.yaml
-      rules:
-        - allow: [User, Group]
+      target: ./examples/golden-path-ai-service/template.yaml
 
-    ## Uncomment these lines to add more example data
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-
-    ## Uncomment these lines to add an example org
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
-    #   rules:
-    #     - allow: [User, Group]
 
 kubernetes:
-  serviceLocatorMethod:
-    type: 'multiTenant'
-  clusterLocatorMethods:
-    - type: 'config'
-      clusters:
-        - name: kind-idp-backstage
-          url: ${K8S_CLUSTER_URL:}
-          authProvider: 'serviceAccount'
-          skipTLSVerify: true
-          skipMetricsLookup: true
-          serviceAccountToken: ${K8S_SA_TOKEN:}
+  # Disable Kubernetes discovery to prevent auto-discovery of non-CRM components
+  disabled: true
 
 grafana:
   # kind extraPortMappings: container 30300 -> host 3300
   domain: http://localhost:3300
   unifiedAlerting: true
+
   # Alertmanager datasource UID (prometheus type) in Grafana
   alertmanagerDataSource: alertmanager
+
   # kube-prometheus-stack Prometheus datasource UID used by the Alerts card
   prometheusDataSource: prometheus
 
 # Alertmanager posts firing/resolved alerts to POST /api/alertmanager/webhook
 alertmanager:
   webhookToken: ${ALERTMANAGER_WEBHOOK_TOKEN:}
+
   # Guest login should see firing CRM alerts in the notification bell.
   recipientEntityRef: user:default/guest
 
@@ -306,5 +310,5 @@ permission:
 
 # see https://backstage.io/docs/ai/mcp-actions for more details
 mcpActions:
-  name: 'My Company Backstage' # defaults to "backstage"
-  description: 'Tools for managing your software catalog, creating new services from templates, and exploring your developer portal' # optional
+  name: 'My Company Backstage'
+  description: 'Tools for managing your software catalog, creating new services from templates, and exploring your developer portal'

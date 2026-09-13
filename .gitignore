@@ -35,3 +35,5 @@ backstage/packages/backend/sqlite/*.sqlite-journal
 backstage/packages/backend/sqlite/*.sqlite
 backstage/packages/backend/sqlite/*.sqlite-journal
 target/
+*.sqlite
+*.sqlite-journal

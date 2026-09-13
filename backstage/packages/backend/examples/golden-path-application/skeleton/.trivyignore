@@ -1,0 +1,4 @@
+# Apache Tomcat CVEs: upstream version 10.1.58 is announced but not yet published to Maven Central
+CVE-2026-65182
+CVE-2026-65905
+CVE-2026-68525

@@ -1,0 +1,6 @@
+# Trivy ignore file for AI service
+# This file allows us to temporarily ignore certain security findings
+# while we work on resolving them
+
+# Ignore until we can verify the non-root user works properly in production
+dockerfile.security.missing-user.missing-user

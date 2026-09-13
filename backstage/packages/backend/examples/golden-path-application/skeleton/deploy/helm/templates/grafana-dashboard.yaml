@@ -1,0 +1,49 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-grafana-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: {{ .Values.name }}
+data:
+  {{ .Values.name }}-dashboard.json: |
+    {
+      "title": "{{ .Values.name }}",
+      "uid": "{{ .Values.name }}-dashboard",
+      "tags": ["{{ .Values.name }}"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-30m", "to": "now" },
+      "panels": [
+        {
+          "id": 1, "type": "stat", "title": "Backend Up",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "targets": [{ "expr": "up{job=\"{{ .Values.name }}-backend\"}", "legendFormat": "Backend" }]
+        },
+        {
+          "id": 2, "type": "stat", "title": "AI Service Up",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "targets": [{ "expr": "up{job=\"{{ .Values.name }}-ai-service\"}", "legendFormat": "AI Service" }]
+        },
+        {
+          "id": 3, "type": "timeseries", "title": "Backend HTTP Request Rate",
+          "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+          "targets": [{ "expr": "sum(rate(http_server_requests_seconds_count{job=\"{{ .Values.name }}-backend\"}[5m]))", "legendFormat": "requests/sec" }]
+        },
+        {
+          "id": 4, "type": "timeseries", "title": "AI Service Request Rate",
+          "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+          "targets": [{ "expr": "sum(rate(http_requests_total{job=\"{{ .Values.name }}-ai-service\"}[5m]))", "legendFormat": "requests/sec" }]
+        },
+        {
+          "id": 5, "type": "timeseries", "title": "JVM Heap Memory",
+          "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+          "targets": [{ "expr": "sum(jvm_memory_used_bytes{job=\"{{ .Values.name }}-backend\",area=\"heap\"})", "legendFormat": "heap used" }]
+        }
+      ]
+    }
+{{- end }}

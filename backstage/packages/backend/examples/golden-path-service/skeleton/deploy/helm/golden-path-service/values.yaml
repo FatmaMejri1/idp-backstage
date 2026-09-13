@@ -1,0 +1,113 @@
+# ============================================================
+# Golden Path Service - Helm Values
+# ============================================================
+
+name: ${{ values.name }}
+description: ${{ values.description }}
+
+# GitHub Container Registry
+# The generated repository owner is injected by the Backstage template.
+imageRegistry: ghcr.io
+imageOwner: ${{ values.githubOwner }}
+
+# ============================================================
+# Backend - Spring Boot
+# ============================================================
+backend:
+  enabled: true
+
+  image:
+    repository: ghcr.io/${{ values.githubOwner }}/${{ values.name }}
+    tag: backend-latest
+    pullPolicy: Always
+
+  port: 8081
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ============================================================
+# Frontend - Angular + Nginx
+# ============================================================
+frontend:
+  enabled: true
+
+  image:
+    repository: ghcr.io/${{ values.githubOwner }}/${{ values.name }}
+    tag: frontend-latest
+    pullPolicy: Always
+
+  port: 80
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# ============================================================
+# PostgreSQL
+# ============================================================
+postgres:
+  enabled: true
+
+  image: postgres:16-alpine
+
+  db: ${{ values.name }}
+  user: ${{ values.name }}
+
+  # IMPORTANT:
+  # This is only a template default.
+  # Production deployments should use a Kubernetes Secret.
+  password: change-me
+
+  port: 5432
+
+  storage: 1Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ============================================================
+# Monitoring
+# ============================================================
+monitoring:
+  enabled: true
+
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+
+  prometheusRules:
+    enabled: true
+
+  grafana:
+    enabled: true
+
+# ============================================================
+# Ingress
+# ============================================================
+ingress:
+  enabled: false
+
+  className: nginx
+
+  host: ${{ values.name }}.localhost
+
+  annotations: {}
+
+  tls: []

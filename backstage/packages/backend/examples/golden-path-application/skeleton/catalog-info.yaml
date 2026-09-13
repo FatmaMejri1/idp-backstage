@@ -1,0 +1,336 @@
+---
+# =============================================================================
+# Component – Root Application (Golden Path Full-Stack)
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  title: "${{ values.name }}"
+  description: "${{ values.description | default('Full-stack golden path application for ' + values.name) }}"
+  tags:
+    - golden-path
+    - application
+    - angular
+    - spring-boot
+    - fastapi
+    - kubernetes
+    - gitops
+  links:
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/part-of=${{ values.name }}
+    backstage.io/kubernetes-namespace: default
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+    pagerduty.com/service-id: ${{ values.pagerdutyServiceId }}
+    argocd/app-name: ${{ values.name }}-app
+spec:
+  type: website
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  providesApis:
+    - ${{ values.name }}-api
+    - ${{ values.name }}-ai-api
+  consumesApis:
+    - ${{ values.name }}-api
+    - ${{ values.name }}-ai-api
+  dependsOn:
+    - component:default/${{ values.name }}-frontend
+    - component:default/${{ values.name }}-backend
+    - component:default/${{ values.name }}-ai-service
+    - resource:default/${{ values.name }}-database
+
+---
+# =============================================================================
+# System — top-level grouping for the entire application
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: ${{ values.name }}-system
+  title: ${{ values.name }} System
+  description: Full-stack application system for ${{ values.name }}.
+  tags:
+    - golden-path
+    - microservices
+    - ai
+spec:
+  owner: group:default/guests
+
+---
+# =============================================================================
+# Resource — PostgreSQL Database
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-database
+  title: "${{ values.name }} PostgreSQL Database"
+  description: "PostgreSQL relational database storing persistence data for ${{ values.name }}."
+  tags:
+    - postgresql
+    - relational
+    - stateful
+    - database
+  links:
+    - url: http://localhost:3300/dashboards
+      title: PostgreSQL Metrics Dashboard
+      icon: dashboard
+spec:
+  type: database
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+
+---
+# =============================================================================
+# Component — Angular Frontend
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}-frontend
+  title: "${{ values.name }} Frontend"
+  description: "Angular frontend for ${{ values.name }}"
+  tags:
+    - angular
+    - frontend
+    - kubernetes
+  links:
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-label-selector: app=${{ values.name }}-frontend
+    backstage.io/kubernetes-namespace: default
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+    argocd/app-name: ${{ values.name }}-app
+spec:
+  type: frontend
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  subcomponentOf: ${{ values.name }}
+  consumesApis:
+    - ${{ values.name }}-api
+    - ${{ values.name }}-ai-api
+  dependsOn:
+    - component:default/${{ values.name }}-backend
+    - component:default/${{ values.name }}-ai-service
+
+---
+# =============================================================================
+# Component — Spring Boot Backend
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}-backend
+  title: "${{ values.name }} Backend"
+  description: "Spring Boot backend for ${{ values.name }}"
+  tags:
+    - spring-boot
+    - java
+    - postgresql
+    - kubernetes
+  links:
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-label-selector: app=${{ values.name }}-backend
+    backstage.io/kubernetes-namespace: default
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+    pagerduty.com/service-id: ${{ values.pagerdutyServiceId }}
+    argocd/app-name: ${{ values.name }}-app
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  subcomponentOf: ${{ values.name }}
+  providesApis:
+    - ${{ values.name }}-api
+  consumesApis:
+    - ${{ values.name }}-ai-api
+  dependsOn:
+    - component:default/${{ values.name }}-ai-service
+    - resource:default/${{ values.name }}-database
+
+---
+# =============================================================================
+# Component — FastAPI + Gemini AI Service
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}-ai-service
+  title: "${{ values.name }} AI Service"
+  description: "FastAPI + Gemini AI microservice for ${{ values.name }}"
+  tags:
+    - python
+    - fastapi
+    - gemini
+    - ai
+    - kubernetes
+  links:
+    - url: http://${{ values.name }}.localhost/ai/docs
+      title: Swagger Docs
+      icon: dashboard
+    - url: http://localhost:3300/dashboards
+      title: Grafana Dashboards
+      icon: dashboard
+    - url: http://localhost:8080/applications/${{ values.name }}-app
+      title: ArgoCD GitOps
+      icon: cloud
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-label-selector: app=${{ values.name }}-ai-service
+    backstage.io/kubernetes-namespace: default
+    grafana/dashboard-selector: ${{ values.name }}
+    grafana/alert-label-selector: app=${{ values.name }}
+    argocd/app-name: ${{ values.name }}-app
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  subcomponentOf: ${{ values.name }}
+  providesApis:
+    - ${{ values.name }}-ai-api
+
+---
+# =============================================================================
+# API — OpenAPI spec exposed by the backend
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{ values.name }}-api
+  title: "${{ values.name }} API"
+  description: "REST API exposed by the ${{ values.name }} Spring Boot backend"
+  tags:
+    - rest
+    - openapi
+    - spring-boot
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  definition: |
+    openapi: "3.0.3"
+    info:
+      title: ${{ values.name }} Backend REST API
+      version: "1.0.0"
+      description: Production REST endpoints for ${{ values.name }} backend microservice.
+    paths:
+      /actuator/health:
+        get:
+          summary: Application health check
+          responses:
+            '200':
+              description: Service is healthy
+      /actuator/prometheus:
+        get:
+          summary: Prometheus metrics scraping endpoint
+          responses:
+            '200':
+              description: Prometheus metrics
+      /api/v1/items:
+        get:
+          summary: List all items
+          responses:
+            '200':
+              description: Successful response
+        post:
+          summary: Create a new item
+          responses:
+            '201':
+              description: Item created
+      /api/v1/items/{id}:
+        get:
+          summary: Get item details by ID
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: integer
+          responses:
+            '200':
+              description: Item found
+            '404':
+              description: Item not found
+
+---
+# =============================================================================
+# API — FastAPI + Gemini AI Service API
+# =============================================================================
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: ${{ values.name }}-ai-api
+  title: "${{ values.name }} AI Service API"
+  description: "OpenAPI endpoints for Gemini AI analysis and intelligent advisory for ${{ values.name }}"
+  tags:
+    - openapi
+    - rest
+    - python
+    - gemini
+  annotations:
+    github.com/project-slug: ${{ values.githubOwner }}/${{ values.name }}
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/guests
+  system: ${{ values.name }}-system
+  definition: |
+    openapi: "3.0.3"
+    info:
+      title: ${{ values.name }} AI Service API
+      version: "1.0.0"
+      description: Gemini-powered AI microservice providing intelligent recommendations and data analysis.
+    paths:
+      /ai/health:
+        get:
+          summary: AI microservice health status
+          responses:
+            '200':
+              description: AI service is operational
+      /ai/analyze:
+        post:
+          summary: Submit data payload for Gemini AI analysis
+          responses:
+            '200':
+              description: AI generated insights and analysis
+      /ai/docs:
+        get:
+          summary: Interactive Swagger / OpenAPI documentation
+          responses:
+            '200':
+              description: Swagger UI HTML

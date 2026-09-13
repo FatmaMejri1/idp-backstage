@@ -137,20 +137,26 @@ export const ServiceMaturityCard = () => {
     });
 
     // 6. Declarative GitOps
-    const isService = entity.spec?.type === 'service';
+    const hasGitOps =
+      entity.spec?.type === 'service' ||
+      entity.spec?.type === 'website' ||
+      entity.spec?.type === 'application' ||
+      Boolean(entity.metadata?.tags?.includes('gitops')) ||
+      Boolean(annotations['argocd/app-name']) ||
+      Boolean(entity.metadata?.links?.some(l => l.url?.includes('8080/applications/') || l.title?.toLowerCase().includes('argocd')));
     const appSlug = entityName === 'crm' ? 'crm-app' : `${entityName}-app`;
     list.push({
       id: 'gitops-delivery',
       category: 'Delivery',
       name: 'Declarative GitOps Delivery',
       description: 'ArgoCD automated continuous synchronization from Git repository',
-      status: isService ? 'passed' : 'warning',
+      status: hasGitOps ? 'passed' : 'warning',
       details: `ArgoCD ${appSlug} watching Helm values`,
       link: `http://localhost:8080/applications/${appSlug}`,
     });
 
     return list;
-  }, [annotations, basePath, entity.spec?.type, entityName]);
+  }, [annotations, basePath, entity.spec?.type, entity.metadata?.tags, entity.metadata?.links, entityName]);
 
   const passedCount = checks.filter(c => c.status === 'passed').length;
   const scorePercent = Math.round((passedCount / checks.length) * 100);

@@ -1,0 +1,142 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+
+metadata:
+  name: golden-path-application
+  title: "Golden Path Application (Full Stack + AI)"
+  description: >
+    Create a production-ready full-stack application with an Angular frontend,
+    Spring Boot backend, FastAPI + Gemini AI service, PostgreSQL database,
+    automated DevSecOps CI/CD, Helm/Kubernetes deployment, and PagerDuty On-Call.
+  tags:
+    - recommended
+    - angular
+    - spring-boot
+    - fastapi
+    - gemini
+    - ai
+    - postgresql
+    - kubernetes
+
+spec:
+  owner: group:default/guests
+  type: service
+
+  parameters:
+    - title: Application Information
+      required:
+        - name
+        - description
+      properties:
+        name:
+          title: Application Name
+          type: string
+          description: Name of the application (lowercase alphanumeric with dashes, e.g. my-app)
+          pattern: "^[a-z0-9-]+$"
+
+        description:
+          title: Description
+          type: string
+          description: Short description of the application
+
+  steps:
+    # -------------------------------------------------------------------------
+    # 1. Provision PagerDuty on-call service (platform policy)
+    # -------------------------------------------------------------------------
+    - id: create-pagerduty-service
+      name: Provision PagerDuty On-Call Service (Automated Platform Policy)
+      action: http:backstage:request
+      input:
+        continueOnBadResponse: true
+        method: POST
+        path: /proxy/pagerduty/services
+        headers:
+          content-type: application/json
+          accept: application/vnd.pagerduty+json;version=2
+        body:
+          service:
+            name: ${{ parameters.name }}
+            description: On-call escalation service for ${{ parameters.name }} (Golden Path IDP)
+            auto_resolve_timeout: 14400
+            acknowledgement_timeout: 1800
+            status: active
+            escalation_policy:
+              id: PHDR94V
+              type: escalation_policy_reference
+            alert_creation: create_alerts_and_incidents
+
+    # -------------------------------------------------------------------------
+    # 2. Fetch unified skeleton
+    # -------------------------------------------------------------------------
+    - id: fetch
+      name: Fetch Golden Path Application Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        copyWithoutTemplating:
+          - .github/workflows/**
+          - deploy/helm/templates/**
+          - "**/__pycache__/**"
+          - "**/*.pyc"
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          githubOwner: FatmaMejri1
+          repoName: ${{ parameters.name }}
+          pagerdutyServiceId: ${{ steps['create-pagerduty-service'].output.body.service.id | default("PGPA001") }}
+
+    # -------------------------------------------------------------------------
+    # 3. Publish to GitHub
+    # -------------------------------------------------------------------------
+    - id: publish
+      name: Publish GitHub Repository
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=FatmaMejri1&repo=${{ parameters.name }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+        repoVisibility: private
+
+    # -------------------------------------------------------------------------
+    # 4. Configure GitHub Actions workflow permissions (platform policy)
+    # -------------------------------------------------------------------------
+    - id: set-ghcr-secret
+      name: Inject GHCR Access Secret (Automated Platform Policy)
+      action: github:repo:set-secret
+      input:
+        repoOwner: FatmaMejri1
+        repoName: ${{ parameters.name }}
+        secretName: GHCR_PAT
+
+    - id: set-workflow-permissions
+      name: Configure GitHub Actions Workflow Permissions (Automated Platform Policy)
+      action: http:backstage:request
+      input:
+        continueOnBadResponse: true
+        method: PUT
+        path: /proxy/github/api/repos/FatmaMejri1/${{ parameters.name }}/actions/permissions/workflow
+        headers:
+          content-type: application/json
+        body:
+          default_workflow_permissions: write
+          can_approve_pull_request_reviews: true
+
+    # -------------------------------------------------------------------------
+    # 5. Register in Backstage catalog
+    # -------------------------------------------------------------------------
+    - id: register
+      name: Register Component
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+        optional: true
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: component:default/${{ parameters.name }}

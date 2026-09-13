@@ -1,0 +1,112 @@
+# ============================================================
+# Golden Path Application — Helm Values
+# ============================================================
+
+name: ${{ values.name }}
+description: ${{ values.description }}
+
+imageRegistry: ghcr.io
+imageOwner: ${{ values.githubOwner | lower }}
+
+# ============================================================
+# Frontend — Angular + Nginx
+# ============================================================
+frontend:
+  enabled: true
+  image:
+    repository: ghcr.io/${{ values.githubOwner | lower }}/${{ values.name | lower }}
+    tag: frontend-latest
+    pullPolicy: Always
+  port: 80
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+# ============================================================
+# Backend — Spring Boot
+# ============================================================
+backend:
+  enabled: true
+  image:
+    repository: ghcr.io/${{ values.githubOwner | lower }}/${{ values.name | lower }}
+    tag: backend-latest
+    pullPolicy: Always
+  port: 8081
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ============================================================
+# AI Service — FastAPI + Gemini
+# ============================================================
+aiService:
+  enabled: true
+  image:
+    repository: ghcr.io/${{ values.githubOwner | lower }}/${{ values.name | lower }}
+    tag: ai-latest
+    pullPolicy: Always
+  port: 8001
+  replicas: 1
+  # AI_API_KEY must be provided via a Kubernetes Secret named <name>-ai-secret
+  # kubectl create secret generic <name>-ai-secret --from-literal=AI_API_KEY=<key>
+  secretName: ${{ values.name }}-ai-secret
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ============================================================
+# PostgreSQL
+# ============================================================
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  db: ${{ values.name }}
+  user: ${{ values.name }}
+  # IMPORTANT: Change this in production — use a Kubernetes Secret.
+  password: change-me
+  port: 5432
+  storage: 1Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ============================================================
+# Monitoring
+# ============================================================
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+  prometheusRules:
+    enabled: true
+  grafana:
+    enabled: true
+
+# ============================================================
+# Ingress
+# ============================================================
+ingress:
+  enabled: false
+  className: nginx
+  host: ${{ values.name }}.localhost
+  annotations: {}
+  tls: []

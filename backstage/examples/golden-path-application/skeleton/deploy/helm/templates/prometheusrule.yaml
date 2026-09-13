@@ -1,0 +1,93 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.prometheusRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Values.name }}
+  namespace: default
+  labels:
+    {{- include "golden-path-application.labels" . | nindent 4 }}
+    release: monitoring
+spec:
+  groups:
+    - name: {{ .Values.name }}.backend
+      rules:
+        - alert: {{ .Values.name }}BackendDown
+          expr: up{job="{{ .Values.name }}-backend"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: backend
+            app: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} backend is down"
+            description: "Prometheus cannot scrape the {{ .Values.name }} backend for more than 1 minute."
+
+        - alert: {{ .Values.name }}BackendHigh5xxRate
+          expr: |
+            (
+              sum(rate(http_server_requests_seconds_count{job="{{ .Values.name }}-backend",status=~"5.."}[5m]))
+            /
+              sum(rate(http_server_requests_seconds_count{job="{{ .Values.name }}-backend"}[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+            component: backend
+            app: {{ .Values.name }}
+          annotations:
+            summary: "High {{ .Values.name }} backend 5xx error rate"
+            description: "More than 5% of backend HTTP requests are returning 5xx errors."
+
+    - name: {{ .Values.name }}.ai-service
+      rules:
+        - alert: {{ .Values.name }}AIServiceDown
+          expr: up{job="{{ .Values.name }}-ai-service"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: ai-service
+            app: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} AI service is down"
+            description: "Prometheus cannot scrape the {{ .Values.name }} AI service for more than 1 minute."
+
+    - name: {{ .Values.name }}.postgresql
+      rules:
+        - alert: {{ .Values.name }}PostgreSQLDown
+          expr: pg_up{job="{{ .Values.name }}-postgres"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: database
+            app: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} PostgreSQL is down"
+            description: "PostgreSQL exporter reports that the {{ .Values.name }} database is unavailable."
+
+    - name: {{ .Values.name }}.kubernetes
+      rules:
+        - alert: {{ .Values.name }}PodNotReady
+          expr: |
+            kube_deployment_status_replicas_available{namespace="default",deployment=~"{{ .Values.name }}-.*"}
+            < kube_deployment_spec_replicas{namespace="default",deployment=~"{{ .Values.name }}-.*"}
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+            app: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} replicas unavailable"
+            description: "Not all expected replicas are available for {{ .Values.name }}."
+
+        - alert: {{ .Values.name }}PodRestarting
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="default",pod=~"{{ .Values.name }}-.*"}[15m]) > 3
+          for: 5m
+          labels:
+            severity: warning
+            component: kubernetes
+            app: {{ .Values.name }}
+          annotations:
+            summary: "{{ .Values.name }} pod restarting frequently"
+            description: "A pod has restarted more than 3 times in the last 15 minutes."
+{{- end }}

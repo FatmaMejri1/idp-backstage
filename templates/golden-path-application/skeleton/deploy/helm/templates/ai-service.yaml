@@ -1,0 +1,18 @@
+{{- if .Values.aiService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}-ai-service
+  namespace: default
+  labels:
+    {{- include "golden-path-application.labels" . | nindent 4 }}
+    app: {{ .Values.name }}-ai-service
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.name }}-ai-service
+  ports:
+    - name: http
+      port: {{ .Values.aiService.port }}
+      targetPort: http
+{{- end }}
