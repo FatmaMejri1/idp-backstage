@@ -187,12 +187,10 @@ proxy:
   endpoints:
     # Used by @backstage/plugin-pagerduty (calls /api/proxy/pagerduty/*)
     '/pagerduty':
-      target: 'http://127.0.0.1:7008/api/pagerduty-mock'
-      changeOrigin: true
-      credentials: dangerously-allow-unauthenticated
-      pathRewrite:
-        '^/api/proxy/pagerduty': ''
-        '^/pagerduty': ''
+      target: 'https://api.pagerduty.com'
+      headers:
+        Authorization: 'Token token=${PAGERDUTY_TOKEN:}'
+        Accept: 'application/vnd.pagerduty+json;version=2'
 
     '/github/api':
       target: 'https://api.github.com'
@@ -279,8 +277,18 @@ catalog:
 
 
 kubernetes:
-  # Disable Kubernetes discovery to prevent auto-discovery of non-CRM components
-  disabled: true
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: config
+      clusters:
+        - url: ${K8S_CLUSTER_URL:https://127.0.0.1:35507}
+          name: kind-idp-backstage
+          title: Kind Cluster
+          authProvider: serviceAccount
+          skipTLSVerify: true
+          skipMetricsLookup: true
+          serviceAccountToken: ${K8S_SA_TOKEN:}
 
 grafana:
   # kind extraPortMappings: container 30300 -> host 3300
@@ -302,6 +310,7 @@ alertmanager:
 
 pagerDuty:
   eventsBaseUrl: 'https://events.pagerduty.com/v2'
+  apiToken: ${PAGERDUTY_TOKEN:}
 
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
 permission:
